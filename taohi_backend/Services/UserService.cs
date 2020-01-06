@@ -1,63 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using taohi_backend.Interfaces;
 
-namespace Basics.Controllers
+namespace taohi_backend.Services
 {
-    [Authorize(Policy = "User")]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserService : IUserService
     {
-        public UserManager<IdentityUser> _userManager { get; set; }
         private readonly IConfiguration _config;
-        public UserController(UserManager<IdentityUser> userManager, IConfiguration config)
+        public UserService(IConfiguration config)
         {
-            _userManager = userManager;
             _config = config;
         }
-        [HttpGet("GetId")]
-        public IActionResult GetSecureNumbers()
-        {
-            var name = User.FindFirstValue(ClaimTypes.Name);
-
-            if (string.IsNullOrWhiteSpace(name))
-                return BadRequest();
-
-            return Ok(name);
-        }
-        [AllowAnonymous]
-        [HttpPost("Authenticate")]
-        public async Task<IActionResult> Authenticate()
-        {
-            var username = "SomeUserName";
-            var password = "Lenny123$";
-
-            // validate user
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-                return BadRequest();
-
-            var signedIn = await _userManager.CheckPasswordAsync(user, password);
-            if (!signedIn)
-                return BadRequest();
-
-            var token = IssueToken(user);
-            if (token == null)
-                return BadRequest();
-
-            return Ok(token); // token
-        }
-
         public string IssueToken(IdentityUser user)
         {
             try

@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -7,9 +6,9 @@
 <h1>Login</h1>
 
 <form action="/Admin/Login" method="post">
-    <label>Username</label><br />
-    <input type="text" name="username" value="" /><br />
+    <label>Email</label><br />
+    <input type="text" name="email" value="corbanhirawani@gmail.com" /><br />
     <label>Password</label><br />
-    <input type="password" name="password" value="" /><br />
+    <input type="password" name="password" value="password" /><br />
     <button style="margin-top: 8px;" type="submit">Submit</button>
 </form>
