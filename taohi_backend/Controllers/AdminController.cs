@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using taohi_backend.Interfaces;
 using taohi_backend.Models;
 
@@ -27,21 +31,71 @@ namespace taohi_backend.Controllers
         }
         public IActionResult Index()
         {
-            ViewBag.users = _userManager.Users;
-            return View();
+            var users = _userManager.Users;
+            return View(users);
         }
-        public IActionResult Details()
+        public async Task<IActionResult> EditUser(string id)
         {
-            return View();
-        }
-        public IActionResult EditUser()
-        {
-            return View();
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"Couldn't find user with Id: {id}";
+                return View("Error");
+            }
+            var model = new UserViewModel { Id = user.Id, Name = user.UserName, Email = user.Email };
+            return View(model);
         }
         [HttpPost]
-        public IActionResult EditUser(string role, string userId)
+        public async Task<IActionResult> EditUser(UserViewModel model)
         {
-            return View();
+            var modelId = model.Id.ToString();
+
+            var user = await _userManager.FindByIdAsync(modelId);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"Couldn't find user with Id: {modelId}";
+                return View("Error");
+            }
+
+            user.UserName = model.Name;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                ViewBag.ErrorMessage = $"Error updating user with Id: {modelId}";
+                return View("Error");
+            }
+
+            return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"Couldn't find user with Id: {id}";
+                return View("Error");
+            }
+            var model = new UserViewModel { Id = user.Id, Name = user.UserName, Email = user.Email };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(UserViewModel model)
+        {
+            var modelId = model.Id.ToString();
+            var user = await _userManager.FindByIdAsync(modelId);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"Couldn't find user with Id: {modelId}";
+                return View("Error");
+            }
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                ViewBag.ErrorMessage = $"Error deleting user with Id: {modelId}";
+                return View("Error");
+            }
+            return RedirectToAction("Index");
         }
         [AllowAnonymous]
         public IActionResult Login()
@@ -55,7 +109,7 @@ namespace taohi_backend.Controllers
             if (!ModelState.IsValid)
                 return View();
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
             if (!result.Succeeded)
             {
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
@@ -101,36 +155,109 @@ namespace taohi_backend.Controllers
 
             return RedirectToAction("Index");
         }
+        public IActionResult ListRoles()
+        {
+            var roles = _roleManager.Roles;
+            return View(roles);
+        }
         public IActionResult CreateRole()
         {
-            ViewBag.roles = _roleManager.Roles;
             return View();
         }
         [HttpPost]
         public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
         {
-            ViewBag.roles = _roleManager.Roles;
+            if (ModelState.IsValid)
+            {
+                var newRole = new UserRole { Name = model.RoleName };
+                var result = await _roleManager.CreateAsync(newRole);
+                if (!result.Succeeded)
+                    foreach (IdentityError error in result.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return RedirectToAction("ListRoles");
+        }
+        public async Task<IActionResult> EditRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id {id} was not found";
+                return View("Error");
+            }
+
+            var users = await _userManager.GetUsersInRoleAsync(role.Name);
+            var userIds = new List<string>();
+            foreach (var user in users)
+                userIds.Add(user.Id.ToString());
+
+            var model = new EditRoleViewModel
+            {
+                Id = role.Id,
+                RoleName = role.Name,
+                Users = userIds
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditRole(EditRoleViewModel role)
+        {
             if (!ModelState.IsValid)
-                return View();
+            {
+                ModelState.AddModelError(string.Empty, "Error updating role.");
+                return View(role);
+            }
 
-            var newRole = new UserRole { Name = model.RoleName };
-            var result = await _roleManager.CreateAsync(newRole);
+            var updateRole = await _roleManager.FindByIdAsync(role.Id.ToString());
+            if (updateRole == null)
+            {
+                ModelState.AddModelError(string.Empty, "Error updating role.");
+                return View(role);
+            }
+
+            updateRole.Name = role.RoleName;
+
+            var result = await _roleManager.UpdateAsync(updateRole);
             if (!result.Succeeded)
-                foreach (IdentityError error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
+            {
+                ModelState.AddModelError(string.Empty, "Error updating role.");
+                return View(role);
+            }
 
-            return View();
+            return RedirectToAction("ListRoles");
+        }
+        public async Task<IActionResult> DeleteRole(string id)
+        {
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                ViewBag.ErrorMessage = $"No Role with Id: {id} was found";
+                return View("Error");
+            }
+            return View(role);
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteRole(DeleteRoleViewModel role)
+        {
+            var oldRole = await _roleManager.FindByIdAsync(role.Id.ToString());
+            if (oldRole == null)
+            {
+                ViewBag.ErrorMessage = $"Couldn't find role with Id: {oldRole.Id}";
+                return View("Error");
+            }
+            var result = await _roleManager.DeleteAsync(oldRole);
+            if (!result.Succeeded)
+            {
+                ViewBag.ErrorMessage = $"Error deleting role with Id: {oldRole.Id}";
+                return View("Error");
+            }
+            return RedirectToAction("ListRoles");
         }
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
 
             return RedirectToAction("Index");
-        }
-        [AllowAnonymous]
-        public IActionResult Error()
-        {
-            return View();
         }
     }
 }

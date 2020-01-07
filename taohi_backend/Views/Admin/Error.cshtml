@@ -1,5 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http;
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -11,7 +10,14 @@
 <body>
     <div class="container body-content margintop">
         <h1>Error</h1>
-        <p>Something unexpected happened.</p>
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <p>@ViewBag.ErrorMessage</p>
+        }
+        else
+        {
+            <p>Something unexpected happened.</p>
+        }
         <hr />
         <footer>
             <p>&copy; @DateTime.Now.Year - Heitiki Creatives</p>

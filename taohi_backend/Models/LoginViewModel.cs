@@ -5,8 +5,8 @@ namespace taohi_backend.Models
     public class LoginViewModel
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Display(Name = "Username")]
+        public string UserName { get; set; }
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }

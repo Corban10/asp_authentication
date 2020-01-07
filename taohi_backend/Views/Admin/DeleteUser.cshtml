@@ -1,0 +1,37 @@
+﻿@using taohi_backend.Models
+@model UserViewModel
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Delete User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Delete User</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            <div class="form-group">
+                <label asp-for="Id"></label>
+                <input asp-for="Id" class="form-control" disabled />
+                <span asp-validation-for="Id" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" disabled />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="form-control" disabled />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a asp-action="Index" class="btn btn-primary" style="width:auto">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
