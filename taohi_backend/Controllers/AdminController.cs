@@ -1,43 +1,46 @@
-﻿using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using taohi_backend.Interfaces;
+using taohi_backend.Models;
 
 namespace taohi_backend.Controllers
 {
     [Authorize(Policy = "Admin")]
     public class AdminController : Controller
     {
-        public RoleManager<IdentityRole> _roleManager { get; set; }
-        public UserManager<IdentityUser> _userManager { get; set; }
-        public SignInManager<IdentityUser> _signInManager { get; set; }
+        public RoleManager<UserRole> _roleManager { get; set; }
+        public UserManager<User> _userManager { get; set; }
+        public SignInManager<User> _signInManager { get; set; }
+        public IAdminService _adminService { get; set; }
         public AdminController(
-            RoleManager<IdentityRole> roleManager,
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            RoleManager<UserRole> roleManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IAdminService adminService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
+            _adminService = adminService;
         }
-        [AllowAnonymous]
         public IActionResult Index()
+        {
+            ViewBag.users = _userManager.Users;
+            return View();
+        }
+        public IActionResult Details()
         {
             return View();
         }
-        public IActionResult CreateRole()
+        public IActionResult EditUser()
         {
-            ViewBag.roles = _roleManager.Roles;
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> CreateRole(string role)
+        public IActionResult EditUser(string role, string userId)
         {
-            var newRole = new IdentityRole { Name = role };
-            await _roleManager.CreateAsync(newRole);
-
-            ViewBag.roles = _roleManager.Roles;
             return View();
         }
         [AllowAnonymous]
@@ -47,32 +50,17 @@ namespace taohi_backend.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var user = await _userManager.FindByNameAsync(email);
-            if (user == null)
-                return RedirectToAction("Index");
-
-            var signedIn = await _signInManager.PasswordSignInAsync(user, password, false, false);
-            if (!signedIn.Succeeded)
+            if (!ModelState.IsValid)
                 return View();
 
-            #region without identity
-            //var validated = await _userManager.CheckPasswordAsync(user, password);
-            //if (!validated)
-            //    return View();
-
-            //var adminClaims = new List<Claim>
-            //{
-            //    new Claim(ClaimTypes.Name, user.Id.ToString()),
-            //    new Claim(ClaimTypes.Email, user.UserName),
-            //    new Claim(ClaimTypes.Role, "Admin"),
-            //};
-            //var adminIdentity = new ClaimsIdentity(adminClaims, "Admin");
-            //var userPrincipal = new ClaimsPrincipal(new[] { adminIdentity });
-
-            //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal);
-            #endregion
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
+                return View();
+            }
 
             return RedirectToAction("Index");
         }
@@ -83,32 +71,58 @@ namespace taohi_backend.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Register(string email, string password)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            var newUser = new IdentityUser { UserName = email, Email = email };
+            if (!ModelState.IsValid)
+                return View();
 
-            var creationResponse = await _userManager.CreateAsync(newUser, password);
+            var newUser = new User { UserName = model.Email, Email = model.Email };
+
+            var creationResponse = await _userManager.CreateAsync(newUser, model.Password);
             if (!creationResponse.Succeeded)
-                return View();
-
-            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, new[]
             {
-                new Claim(ClaimTypes.Name, newUser.Id),
-                new Claim(ClaimTypes.Role, "Admin"),
-            });
-            if (!addClaimsResponse.Succeeded)
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
                 return View();
+            }
 
-            var result = await _signInManager.PasswordSignInAsync(email, password, false, false);
-            if (!result.Succeeded)
+            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, _adminService.IssueClaims(newUser));
+            if (!addClaimsResponse.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
                 return View();
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
+                return View();
+            }
 
             return RedirectToAction("Index");
         }
+        public IActionResult CreateRole()
+        {
+            ViewBag.roles = _roleManager.Roles;
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
+        {
+            ViewBag.roles = _roleManager.Roles;
+            if (!ModelState.IsValid)
+                return View();
+
+            var newRole = new UserRole { Name = model.RoleName };
+            var result = await _roleManager.CreateAsync(newRole);
+            if (!result.Succeeded)
+                foreach (IdentityError error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+            return View();
+        }
         public async Task<IActionResult> Logout()
         {
-            // HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
             await _signInManager.SignOutAsync();
 
             return RedirectToAction("Index");

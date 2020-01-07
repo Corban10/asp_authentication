@@ -8,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace taohi_backend.Controllers
 {
-    [Authorize(Policy = "ModeratorOrUser")]
+    [Authorize(Policy = "User")]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        public UserManager<IdentityUser> _userManager { get; set; }
+        public UserManager<User> _userManager { get; set; }
         private readonly IUserService _userService;
-        public UserController(IUserService userService, UserManager<IdentityUser> userManager)
+        public UserController(IUserService userService, UserManager<User> userManager)
         {
             _userService = userService;
             _userManager = userManager;
@@ -32,7 +32,7 @@ namespace taohi_backend.Controllers
         }
         [AllowAnonymous]
         [HttpPost("Authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] LoginViewModel loginUser)
+        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel loginUser)
         {
             var user = await _userManager.FindByNameAsync(loginUser.username);
             if (user == null)

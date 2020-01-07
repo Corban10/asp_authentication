@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using taohi_backend.Services;
 using taohi_backend.Interfaces;
 using taohi_backend.Data;
+using taohi_backend.Models;
 
 namespace taohi_backend
 {
@@ -26,7 +27,7 @@ namespace taohi_backend
                     (options => options.UseMySql(_config["MySql:ConnectionString"]));
 
             services
-                .AddIdentity<IdentityUser, IdentityRole>(config =>
+                .AddIdentity<User, UserRole>(config =>
                 {
                     config.User.RequireUniqueEmail = true;
                     config.Password.RequireUppercase = false;
@@ -71,18 +72,6 @@ namespace taohi_backend
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("User", policy =>
-                {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole("Admin");
-                });
-                options.AddPolicy("ModeratorOrUser", policy =>
-                {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole(new[] { "Moderator", "User" });
-                });
                 options.AddPolicy("Admin", policy =>
                 {
                     policy.RequireAuthenticatedUser();
@@ -92,16 +81,22 @@ namespace taohi_backend
                 {
                     policy.RequireAuthenticatedUser();
                     policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireRole("Moderator");
+                    policy.RequireRole(new[] { "Admin", "Moderator" });
                 });
-                //options.AddPolicy("AdminOrUser", policy =>
-                //{
-                //    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                //    policy.RequireAuthenticatedUser();
-                //    policy.RequireAssertion(context =>
-                //        context.User.IsInRole("Admin") ||
-                //        context.User.IsInRole("User"));
-                //});
+                options.AddPolicy("User", policy =>
+                {
+                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole(new[] { "Admin", "Moderator", "User" });
+                });
+                // options.AddPolicy("AdminOrUser", policy =>
+                // {
+                //     policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                //     policy.RequireAuthenticatedUser();
+                //     policy.RequireAssertion(context =>
+                //         context.User.IsInRole("Admin") ||
+                //         context.User.IsInRole("User"));
+                // });
             });
 
             services.AddScoped<IUserService, UserService>();
@@ -129,6 +124,7 @@ namespace taohi_backend
                 .AllowAnyMethod()
                 .AllowAnyHeader());
 
+            app.UseStaticFiles();
             app.UseRouting();
 
             // who are you?

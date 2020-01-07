@@ -13,9 +13,9 @@ namespace taohi_backend.Controllers
     [Route("api/Admin")]
     public class ModeratorController : ControllerBase
     {
-        public UserManager<IdentityUser> _userManager { get; set; }
+        public UserManager<User> _userManager { get; set; }
         private readonly IAdminService _userService;
-        public ModeratorController(IAdminService userService, UserManager<IdentityUser> userManager)
+        public ModeratorController(IAdminService userService, UserManager<User> userManager)
         {
             _userService = userService;
             _userManager = userManager;
@@ -32,7 +32,7 @@ namespace taohi_backend.Controllers
         }
         [AllowAnonymous]
         [HttpPost("Authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] LoginViewModel loginUser)
+        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel loginUser)
         {
             // find user
             var user = await _userManager.FindByNameAsync(loginUser.username);

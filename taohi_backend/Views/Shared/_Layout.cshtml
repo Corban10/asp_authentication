@@ -8,10 +8,20 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="~/css/global.css" />
 </head>
-<body class="globaltest">
+<body>
     <nav class="navbar navbar-light bg-light justify-content-between flex-nowrap flex-row">
         <div class="container">
-            <a asp-controller="Admin" asp-action="Index" class="navbar-brand">Home</a>
+            <ul class="nav navbar-nav flex-row float-right">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item ml-2">
+                        <a asp-controller="Admin" asp-action="Index" class="navbar-brand">Users</a>
+                    </li>
+                    <li class="nav-item ml-2">
+                        <a asp-controller="Admin" asp-action="CreateRole" class="nav-link">Create Role</a>
+                    </li>
+                }
+            </ul>
             <ul class="nav navbar-nav flex-row float-right">
                 @if (!User.Identity.IsAuthenticated)
                 {
@@ -25,17 +35,14 @@
                 else
                 {
                     <li class="nav-item ml-2">
-                        <a asp-controller="Admin" asp-action="CreateRole" class="nav-link">Create Role</a>
-                    </li>
-                    <li class="nav-item ml-2">
-                        <a asp-controller="Admin" asp-action="Logout" class="nav-link">Logout</a>
+                        <a asp-controller="Admin" asp-action="Logout" class="nav-link">Logout @User.Identity.Name</a>
                     </li>
                 }
             </ul>
         </div>
     </nav>
 
-    <div class="container body-content">
+    <div class="container body-content margintop">
         @RenderBody()
         <hr />
         <footer>

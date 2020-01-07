@@ -2,7 +2,7 @@
 
 namespace taohi_backend.Models
 {
-    public class LoginViewModel
+    public class RegisterViewModel
     {
         [Required]
         [EmailAddress]
@@ -10,7 +10,5 @@ namespace taohi_backend.Models
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        [Display(Name = "Remember Me")]
-        public bool RememberMe { get; set; }
     }
 }

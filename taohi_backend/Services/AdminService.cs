@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using taohi_backend.Interfaces;
+using taohi_backend.Models;
 
 namespace taohi_backend.Services
 {
@@ -17,7 +18,7 @@ namespace taohi_backend.Services
         {
             _config = config;
         }
-        public string IssueToken(IdentityUser user)
+        public string IssueToken(User user)
         {
             try
             {
@@ -40,7 +41,7 @@ namespace taohi_backend.Services
                 return null;
             }
         }
-        public List<Claim> IssueClaims(IdentityUser user)
+        public List<Claim> IssueClaims(User user)
         {
             return new List<Claim>
             {
