@@ -115,17 +115,25 @@ namespace taohi_backend.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
                 return View();
             }
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                return View();
+            }
+
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                return RedirectToAction("Logout");
+            }
 
             return RedirectToAction("Index");
         }
-        [AllowAnonymous]
-        public IActionResult Register()
+        public IActionResult CreateNewUser()
         {
             return View();
         }
-        [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> CreateNewUser(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
                 return View();
@@ -135,26 +143,25 @@ namespace taohi_backend.Controllers
             var creationResponse = await _userManager.CreateAsync(newUser, model.Password);
             if (!creationResponse.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
+                ModelState.AddModelError(string.Empty, "Error registering user.");
                 return View();
             }
 
             var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, _adminService.IssueClaims(newUser));
             if (!addClaimsResponse.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
+                ModelState.AddModelError(string.Empty, "Error registering user.");
                 return View();
             }
 
-            //var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-            //if (!result.Succeeded)
-            //{
-            //    ModelState.AddModelError(string.Empty, "Invalid Login Attempt.");
-            //    return View();
-            //}
+            var result = await _userManager.AddToRoleAsync(newUser, "User");
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "Error registering user.");
+                return View();
+            }
 
-            // return RedirectToAction("Index");
-            return RedirectToAction("Login");
+            return RedirectToAction("Index");
         }
         public IActionResult ListRoles()
         {
@@ -307,11 +314,12 @@ namespace taohi_backend.Controllers
             }
             return RedirectToAction("ListRoles");
         }
+        [AllowAnonymous]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Login");
         }
     }
 }

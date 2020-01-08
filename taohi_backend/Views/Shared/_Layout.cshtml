@@ -9,43 +9,26 @@
     <link rel="stylesheet" href="~/css/global.css" />
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light justify-content-between flex-nowrap flex-row">
-        <div class="container">
-            <ul class="nav navbar-nav flex-row float-right">
-                @if (User.Identity.IsAuthenticated)
-                {
-                    //var action = (string)ViewContext.RouteData.Values["Action"];
-                    //var Index = action == "Index" ? "navbar-brand" : "nav-link";
-                    //var ListRoles = action == "ListRoles" ? "navbar-brand" : "nav-link";
-
+    @if (User.Identity.IsAuthenticated)
+    {
+        <nav class="navbar navbar-light bg-light justify-content-between flex-nowrap flex-row">
+            <div class="container">
+                <ul class="nav navbar-nav flex-row float-right">
                     <li class="nav-item ml-2">
                         <a asp-controller="Admin" asp-action="Index" class="navbar-brand">Users</a>
                     </li>
                     <li class="nav-item ml-2">
                         <a asp-controller="Admin" asp-action="ListRoles" class="nav-link">Roles</a>
                     </li>
-                }
-            </ul>
-            <ul class="nav navbar-nav flex-row float-right">
-                @if (!User.Identity.IsAuthenticated)
-                {
-                    <li class="nav-item ml-2">
-                        <a asp-controller="Admin" asp-action="Register" class="nav-link">Register</a>
-                    </li>
-                    <li class="nav-item ml-2">
-                        <a asp-controller="Admin" asp-action="Login" class="nav-link">Login</a>
-                    </li>
-                }
-                else
-                {
+                </ul>
+                <ul class="nav navbar-nav flex-row float-right">
                     <li class="nav-item ml-2">
                         <a asp-controller="Admin" asp-action="Logout" class="nav-link">Logout</a> <!-- User.Identity.Name -->
                     </li>
-                }
-            </ul>
-        </div>
-    </nav>
-
+                </ul>
+            </div>
+        </nav>
+    }
     <div class="container body-content margintop">
         @RenderBody()
         <hr />

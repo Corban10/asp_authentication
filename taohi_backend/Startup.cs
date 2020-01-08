@@ -48,7 +48,7 @@ namespace taohi_backend
                     config.Cookie.Name = "Identity.Cookie";
 
                     config.LoginPath = "/Admin/Login";
-                    config.AccessDeniedPath = "/Admin/Error";
+                    config.AccessDeniedPath = "/Admin/Login";
                     config.SlidingExpiration = true;
                 });
 
@@ -79,8 +79,8 @@ namespace taohi_backend
                 });
                 options.AddPolicy("Moderator", policy =>
                 {
-                    policy.RequireAuthenticatedUser();
                     policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.RequireAuthenticatedUser();
                     policy.RequireRole(new[] { "Admin", "Moderator" });
                 });
                 options.AddPolicy("User", policy =>
@@ -106,7 +106,11 @@ namespace taohi_backend
             services.AddMvc();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            UserManager<User> userManager,
+            RoleManager<UserRole> roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -131,6 +135,8 @@ namespace taohi_backend
             app.UseAuthentication();
             // are you allowed?
             app.UseAuthorization();
+
+            UserDataSeeder.SeedData(userManager, roleManager);
 
             app.UseEndpoints(endpoints =>
             {

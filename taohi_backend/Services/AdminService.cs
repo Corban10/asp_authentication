@@ -46,7 +46,6 @@ namespace taohi_backend.Services
             return new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, "Admin")
             };
         }
     }
