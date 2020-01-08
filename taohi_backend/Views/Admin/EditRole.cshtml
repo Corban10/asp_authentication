@@ -49,17 +49,14 @@
             }
             else
             {
-                <ul>
-                    @foreach (var user in Model.Users)
-                    {
-                        <li>@user</li>
-                    }
-                </ul>
+                @foreach (var user in Model.Users)
+                {
+                    <h5 class="card-title">@user</h5>
+                }
             }
         </div>
         <div class="card-footer">
-            <a asp-action="ListRoles" class="btn btn-primary">Add User</a>
-            <a asp-action="ListRoles" class="btn btn-primary">Delete User</a>
+            <a asp-action="EditUserRole" asp-route-id="@Model.Id" class="btn btn-primary">Add Or Remove Users</a>
         </div>
     </div>
 </div>

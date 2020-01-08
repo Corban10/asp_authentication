@@ -1,0 +1,49 @@
+﻿@using taohi_backend.Models
+@model EditUserRoleViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Edit Role";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="card mb-3">
+        <div class="card-header">
+            Add or remove users from role
+        </div>
+        <div class="card-body">
+            @if (Model.Users == null || Model.Users.Count <= 0)
+            {
+                <p>None at the moment</p>
+            }
+            else
+            {
+                <form method="post" class="mt-3">
+                    <div asp-validation-summary="All" class="text-danger">
+                    </div>
+                    <input type="hidden" asp-for="@Model.Id">
+                    @for (int i = 0; i < Model.Users.Count; i++)
+                    {
+                        <div class="form-check">
+                            <input type="hidden" asp-for="@Model.Users[i].UserId">
+                            <input type="hidden" asp-for="@Model.Users[i].UserName">
+                            <input type="checkbox" asp-for="@Model.Users[i].IsSelected" class="form-check-input">
+                            <label class="form-check-label">@Model.Users[i].UserName</label>
+                        </div>
+                    }
+                    <div class="form-group row mt-3">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary" style="width:auto">
+                                Update User Roles
+                            </button>
+                            <a asp-action="ListRoles" class="btn btn-primary" style="width:auto">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>

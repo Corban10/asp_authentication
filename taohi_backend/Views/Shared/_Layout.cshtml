@@ -14,6 +14,10 @@
             <ul class="nav navbar-nav flex-row float-right">
                 @if (User.Identity.IsAuthenticated)
                 {
+                    //var action = (string)ViewContext.RouteData.Values["Action"];
+                    //var Index = action == "Index" ? "navbar-brand" : "nav-link";
+                    //var ListRoles = action == "ListRoles" ? "navbar-brand" : "nav-link";
+
                     <li class="nav-item ml-2">
                         <a asp-controller="Admin" asp-action="Index" class="navbar-brand">Users</a>
                     </li>
@@ -35,7 +39,7 @@
                 else
                 {
                     <li class="nav-item ml-2">
-                        <a asp-controller="Admin" asp-action="Logout" class="nav-link">Logout @User.Identity.Name</a>
+                        <a asp-controller="Admin" asp-action="Logout" class="nav-link">Logout</a> <!-- User.Identity.Name -->
                     </li>
                 }
             </ul>

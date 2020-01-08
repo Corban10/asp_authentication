@@ -13,6 +13,11 @@
     {
         <div class="container">
             <h1>Users</h1>
+            <hr />
+            <a asp-action="Register" class="btn btn-primary" style="width:auto;">
+                Create New User
+            </a>
+            <hr />
             @foreach (var user in Model)
             {
                 <div class="card mb-3">
