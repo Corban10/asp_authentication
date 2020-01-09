@@ -11,5 +11,9 @@ namespace taohi_backend.Models
         public string Name { get; set; }
         [EmailAddress]
         public string Email { get; set; }
+        public string Token { get; set; }
+        public ContentType UserType { get; set; }
+        public IEnumerable<string> Roles { get; set; }
+        public IEnumerable<string> Claims { get; set; }
     }
 }

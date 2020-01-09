@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Http;
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,7 +11,7 @@
     <link rel="stylesheet" href="~/css/global.css" />
 </head>
 <body>
-    @if (User.Identity.IsAuthenticated)
+    @if ((await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded)
     {
         <nav class="navbar navbar-light bg-light justify-content-between flex-nowrap flex-row">
             <div class="container">

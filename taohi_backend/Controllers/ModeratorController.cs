@@ -47,7 +47,7 @@ namespace taohi_backend.Controllers
                 return BadRequest();
 
             // issue token
-            var token = _userService.IssueToken(user);
+            var token = await _userService.IssueToken(user);
             if (token == null)
                 return BadRequest();
 

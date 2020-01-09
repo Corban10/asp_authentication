@@ -42,7 +42,7 @@ namespace taohi_backend.Controllers
             if (!signedIn)
                 return BadRequest();
 
-            var token = _userService.IssueToken(user);
+            var token = await _userService.IssueToken(user);
             if (token == null)
                 return BadRequest();
 

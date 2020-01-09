@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -14,11 +15,13 @@ namespace taohi_backend.Services
     public class UserService : IUserService
     {
         private readonly IConfiguration _config;
-        public UserService(IConfiguration config)
+        public UserManager<User> _userManager { get; set; }
+        public UserService(IConfiguration config, UserManager<User> userManager)
         {
             _config = config;
+            _userManager = userManager;
         }
-        public string IssueToken(User user)
+        public async Task<string> IssueToken(User user)
         {
             try
             {
@@ -26,6 +29,8 @@ namespace taohi_backend.Services
                 var symmetricSecurityKey = new SymmetricSecurityKey(securityKey);
                 var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
                 var claims = IssueClaims(user);
+                var userClaims = await _userManager.GetClaimsAsync(user);
+                claims.AddRange(userClaims);
                 var token = new JwtSecurityToken(
                     issuer: _config["JwtAuthentication:Issuer"],
                     audience: _config["JwtAuthentication:Audience"],
@@ -45,7 +50,23 @@ namespace taohi_backend.Services
         {
             return new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // for blacklisting tokens
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim("ContentType", user.ContentType.ToString())
+                // appended identity user claims instead
+                // new Claim("ContentType", user.ContentType.ToString()) 
+            };
+        }
+        public UserViewModel ReturnUserViewModel(User user)
+        {
+            return new UserViewModel
+            {
+                Id = user.Id,
+                Name = user.UserName,
+                Email = user.Email,
+                Token = user.Token,
+                UserType = user.ContentType
             };
         }
     }

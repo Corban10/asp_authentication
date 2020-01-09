@@ -13,6 +13,9 @@ using taohi_backend.Services;
 using taohi_backend.Interfaces;
 using taohi_backend.Data;
 using taohi_backend.Models;
+using Microsoft.AspNetCore.Authorization;
+using taohi_backend.PolicyHandlers;
+using Newtonsoft.Json;
 
 namespace taohi_backend
 {
@@ -53,8 +56,8 @@ namespace taohi_backend
                 });
 
             services
-                .AddAuthentication()
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                .AddAuthentication("OAuth")
+                .AddJwtBearer("OAuth", options =>
                 {
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
@@ -72,6 +75,7 @@ namespace taohi_backend
 
             services.AddAuthorization(options =>
             {
+                // roles
                 options.AddPolicy("Admin", policy =>
                 {
                     policy.RequireAuthenticatedUser();
@@ -79,31 +83,48 @@ namespace taohi_backend
                 });
                 options.AddPolicy("Moderator", policy =>
                 {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes("OAuth");
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole(new[] { "Admin", "Moderator" });
+                    policy.RequireRole("Moderator");
+                    policy.RequireRole(new[] { "Admin", "User" });
                 });
                 options.AddPolicy("User", policy =>
                 {
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes("OAuth");
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole(new[] { "Admin", "Moderator", "User" });
+                    policy.RequireRole(new[] { "Admin", "User" });
                 });
-                // options.AddPolicy("AdminOrUser", policy =>
-                // {
-                //     policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                //     policy.RequireAuthenticatedUser();
-                //     policy.RequireAssertion(context =>
-                //         context.User.IsInRole("Admin") ||
-                //         context.User.IsInRole("User"));
-                // });
+                // claims
+                options.AddPolicy("AdminType", policy =>
+                {
+                    policy.RequireClaim("ContentType", "Heitiki");
+                });
+                options.AddPolicy("UserType", policy =>
+                {
+                    policy.RequireAssertion(context =>
+                        context.User.HasClaim("ContentType", "Taohi") ||
+                        context.User.HasClaim("ContentType", "Rangatahi"));
+                });
+                // custom claims
+                //options.AddPolicy("CustomClaimType", policy =>
+                //{
+                //    policy.Requirements.Add(new CustomClaimOperations("UserType", "Heitiki"));
+                //});
             });
 
+            // services.AddSingleton<IAuthorizationHandler, CustomClaimAuthHandler>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAdminService, AdminService>();
 
             services.AddCors();
-            services.AddMvc();
+            services
+                .AddMvc()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                    options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                });
         }
 
         public void Configure(

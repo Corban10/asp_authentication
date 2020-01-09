@@ -5,9 +5,10 @@ namespace taohi_backend.Models
 {
     public class User : IdentityUser<Guid>
     {
-        public UserType UserType { get; set; }
+        public ContentType ContentType { get; set; }
+        public string Token { get; set; }
     }
-    public enum UserType
+    public enum ContentType
     {
         undefined,
         Taohi,

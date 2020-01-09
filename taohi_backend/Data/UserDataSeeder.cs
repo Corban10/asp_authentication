@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using taohi_backend.Models;
 
 namespace taohi_backend.Data
@@ -11,78 +10,77 @@ namespace taohi_backend.Data
     {
         public static void SeedData(UserManager<User> userManager, RoleManager<UserRole> roleManager)
         {
-            SeedRoles(roleManager);
-            SeedUsers(userManager);
+            SeedRoles(roleManager).Wait();
+            SeedUsers(userManager).Wait();
         }
-        public static void SeedUsers(UserManager<User> userManager)
+        public static async Task AddRolesAndClaims(UserManager<User> userManager, User user)
         {
-            if (userManager.FindByNameAsync("corban10").Result == null)
+            await userManager.AddToRoleAsync(user, "User");
+            await userManager.AddToRoleAsync(user, "Moderator");
+            await userManager.AddToRoleAsync(user, "Admin");
+            var claim = new Claim("ContentType", user.ContentType.ToString());
+            await userManager.AddClaimAsync(user, claim);
+        }
+        public static async Task SeedUsers(UserManager<User> userManager)
+        {
+            if (await userManager.FindByNameAsync("corban10") == null)
             {
-                User user = new User();
+                var user = new User();
                 user.UserName = "corban";
                 user.Email = "corbanhirawani@gmail.com";
+                user.ContentType = ContentType.Heitiki;
 
-                IdentityResult result = userManager.CreateAsync(user, "password").Result;
+                IdentityResult result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
-                {
-                    userManager.AddToRoleAsync(user, "User").Wait();
-                    userManager.AddToRoleAsync(user, "Moderator").Wait();
-                    userManager.AddToRoleAsync(user, "Admin").Wait();
-                }
+                    await AddRolesAndClaims(userManager, user);
             }
-            if (userManager.FindByNameAsync("maraea").Result == null)
+            if (await userManager.FindByNameAsync("maraea") == null)
             {
-                User user = new User();
+                var user = new User();
                 user.UserName = "maraea";
                 user.Email = "maraea@heitikicreatives.com";
+                user.ContentType = ContentType.Heitiki;
 
-                IdentityResult result = userManager.CreateAsync(user, "password").Result;
+                IdentityResult result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
-                {
-                    userManager.AddToRoleAsync(user, "User").Wait();
-                    userManager.AddToRoleAsync(user, "Moderator").Wait();
-                    userManager.AddToRoleAsync(user, "Admin").Wait();
-                }
+                    await AddRolesAndClaims(userManager, user);
             }
-            if (userManager.FindByNameAsync("peter").Result == null)
+            if (await userManager.FindByNameAsync("peter") == null)
             {
-                User user = new User();
+                var user = new User();
                 user.UserName = "peter";
                 user.Email = "petertanerapalmer@gmail.com";
+                user.ContentType = ContentType.Heitiki;
 
-                IdentityResult result = userManager.CreateAsync(user, "password").Result;
+                IdentityResult result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
-                {
-                    userManager.AddToRoleAsync(user, "User").Wait();
-                    userManager.AddToRoleAsync(user, "Moderator").Wait();
-                    userManager.AddToRoleAsync(user, "Admin").Wait();
-                }
+                    await AddRolesAndClaims(userManager, user);
             }
         }
 
-        public static void SeedRoles(RoleManager<UserRole> roleManager)
+        public static async Task SeedRoles(RoleManager<UserRole> roleManager)
         {
-            if (!roleManager.RoleExistsAsync("User").Result)
+            if (!await roleManager.RoleExistsAsync("User"))
             {
-                UserRole role = new UserRole();
+                var role = new UserRole();
                 role.Name = "User";
-                IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+                var roleResult = await roleManager.CreateAsync(role);
                 Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
 
-            if (!roleManager.RoleExistsAsync("Moderator").Result)
+            if (!await roleManager.RoleExistsAsync("Moderator"))
             {
-                UserRole role = new UserRole();
+                var role = new UserRole();
                 role.Name = "Moderator";
-                IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+                var roleResult = await roleManager.CreateAsync(role);
                 Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
 
-            if (!roleManager.RoleExistsAsync("Admin").Result)
+            if (!await roleManager.RoleExistsAsync("Admin"))
             {
-                UserRole role = new UserRole();
+                var role = new UserRole();
                 role.Name = "Admin";
-                IdentityResult roleResult = roleManager.CreateAsync(role).Result;
+                var roleResult = await roleManager.CreateAsync(role);
                 Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
         }

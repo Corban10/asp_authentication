@@ -29,7 +29,7 @@
         <div class="form-group">
             <label asp-for="Email" class="col-form-label"></label><br />
             <div>
-                <input asp-for="Email" class="form-control" placeholder="Name" disabled>
+                <input asp-for="Email" class="form-control" placeholder="Name">
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
         </div>
@@ -44,4 +44,50 @@
             </div>
         </div>
     </form>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            User Roles
+        </div>
+        <div class="card-body">
+            @if (Model.Roles == null || !Model.Roles.Any())
+            {
+                <h5>None at the moment</h5>
+            }
+            else
+            {
+
+                @foreach (var role in Model.Roles)
+                {
+                    <h5>@role</h5>
+                }
+            }
+        </div>
+        <div class="card-footer">
+            <a asp-action="ListRoles" class="btn btn-primary">Manage Roles</a>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            User Claims
+        </div>
+        <div class="card-body">
+            @if (Model.Claims == null || !Model.Claims.Any())
+            {
+                <h5>None at the moment</h5>
+            }
+            else
+            {
+
+                @foreach (var claim in Model.Claims)
+                {
+                    <h5>@claim</h5>
+                }
+            }
+        </div>
+        <div class="card-footer">
+            <a href="#" class="btn btn-primary">Manage Claims</a>
+        </div>
+    </div>
 </div>

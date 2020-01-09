@@ -12,22 +12,26 @@ using taohi_backend.Models;
 namespace taohi_backend.Controllers
 {
     [Authorize(Policy = "Admin")]
+    [Authorize(Policy = "AdminType")]
     public class AdminController : Controller
     {
         public RoleManager<UserRole> _roleManager { get; set; }
         public UserManager<User> _userManager { get; set; }
         public SignInManager<User> _signInManager { get; set; }
         public IAdminService _adminService { get; set; }
+        public IAuthorizationService _authService { get; set; }
         public AdminController(
             RoleManager<UserRole> roleManager,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            IAdminService adminService)
+            IAdminService adminService,
+            IAuthorizationService authService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _adminService = adminService;
+            _authService = authService;
         }
         public IActionResult Index()
         {
@@ -42,7 +46,20 @@ namespace taohi_backend.Controllers
                 ViewBag.ErrorMessage = $"Couldn't find user with Id: {id}";
                 return View("Error");
             }
-            var model = new UserViewModel { Id = user.Id, Name = user.UserName, Email = user.Email };
+            var roles = await _userManager.GetRolesAsync(user);
+            var claims = await _userManager.GetClaimsAsync(user);
+            var claimValues = claims.Select(claim =>
+            {
+                return claim.Value;
+            });
+            var model = new UserViewModel
+            {
+                Id = user.Id,
+                Name = user.UserName,
+                Email = user.Email,
+                Roles = roles,
+                Claims = claimValues
+            };
             return View(model);
         }
         [HttpPost]
@@ -117,16 +134,37 @@ namespace taohi_backend.Controllers
             }
             var user = await _userManager.FindByNameAsync(model.UserName);
             if (user == null)
-            {
                 return View();
-            }
 
-            if (!await _userManager.IsInRoleAsync(user, "Admin"))
-            {
+            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+            if (!(await _authService.AuthorizeAsync(claimsPrincipal, "Admin")).Succeeded)
                 return RedirectToAction("Logout");
-            }
 
             return RedirectToAction("Index");
+        }
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = await _userManager.FindByNameAsync(model.username);
+            if (user == null)
+                return BadRequest();
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.password, false);
+            if (!result.Succeeded)
+                return BadRequest();
+
+            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+            if (!(await _authService.AuthorizeAsync(claimsPrincipal, "Admin")).Succeeded)
+                return BadRequest();
+
+            user.Token = await _adminService.IssueToken(user);
+            var userViewModel = _adminService.ReturnUserViewModel(user);
+
+            return Ok(userViewModel);
         }
         public IActionResult CreateNewUser()
         {
