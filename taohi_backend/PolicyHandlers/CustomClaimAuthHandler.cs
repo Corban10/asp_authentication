@@ -6,11 +6,9 @@ namespace taohi_backend.PolicyHandlers
 {
     public class CustomClaimOperations : IAuthorizationRequirement
     {
-        public string Type { get; set; }
         public string Value { get; set; }
         public CustomClaimOperations(string type, string value)
         {
-            Type = type;
             Value = value;
         }
     }
@@ -20,7 +18,7 @@ namespace taohi_backend.PolicyHandlers
             AuthorizationHandlerContext context,
             CustomClaimOperations requirement)
         {
-            if (context.User.HasClaim(requirement.Type, requirement.Value))
+            if (context.User.HasClaim("ArbitraryString", requirement.Value))
                 context.Succeed(requirement);
             return Task.CompletedTask;
         }

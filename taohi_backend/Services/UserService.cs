@@ -12,7 +12,7 @@ using taohi_backend.Models;
 
 namespace taohi_backend.Services
 {
-    public class UserService : IUserService
+    public class UserService : IUsersService
     {
         private readonly IConfiguration _config;
         public UserManager<User> _userManager { get; set; }
@@ -53,9 +53,8 @@ namespace taohi_backend.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // for blacklisting tokens
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim("ContentType", user.ContentType.ToString())
                 // appended identity user claims instead
-                // new Claim("ContentType", user.ContentType.ToString()) 
+                // new Claim("UserType", user.UserType.ToString())
             };
         }
         public UserViewModel ReturnUserViewModel(User user)
@@ -66,7 +65,7 @@ namespace taohi_backend.Services
                 Name = user.UserName,
                 Email = user.Email,
                 Token = user.Token,
-                UserType = user.ContentType
+                UserType = user.UserType
             };
         }
     }

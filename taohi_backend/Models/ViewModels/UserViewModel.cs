@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace taohi_backend.Models
 {
@@ -12,8 +13,8 @@ namespace taohi_backend.Models
         [EmailAddress]
         public string Email { get; set; }
         public string Token { get; set; }
-        public ContentType UserType { get; set; }
+        public UserType UserType { get; set; }
         public IEnumerable<string> Roles { get; set; }
-        public IEnumerable<string> Claims { get; set; }
+        public IEnumerable<Claim> Claims { get; set; }
     }
 }

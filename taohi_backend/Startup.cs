@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -13,9 +12,9 @@ using taohi_backend.Services;
 using taohi_backend.Interfaces;
 using taohi_backend.Data;
 using taohi_backend.Models;
-using Microsoft.AspNetCore.Authorization;
-using taohi_backend.PolicyHandlers;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 
 namespace taohi_backend
 {
@@ -62,6 +61,21 @@ namespace taohi_backend
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
 
+                    options.Events = new JwtBearerEvents()
+                    {
+                        // for authorizing tokens from query instead of body
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"]; // or Bearer ?
+                            // var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken)) // && path.StartsWithSegments("/Messages/Hub")
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
+
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ValidateIssuer = true,
@@ -97,23 +111,27 @@ namespace taohi_backend
                 // claims
                 options.AddPolicy("AdminType", policy =>
                 {
-                    policy.RequireClaim("ContentType", "Heitiki");
+                    policy.RequireClaim("UserType", "Heitiki");
                 });
                 options.AddPolicy("UserType", policy =>
                 {
                     policy.RequireAssertion(context =>
-                        context.User.HasClaim("ContentType", "Taohi") ||
-                        context.User.HasClaim("ContentType", "Rangatahi"));
+                        context.User.HasClaim("UserType", "Taohi") ||
+                        context.User.HasClaim("UserType", "Rangatahi"));
+                });
+                options.AddPolicy("IsActive", policy =>
+                {
+                    policy.RequireClaim("IsActive", "true");
                 });
                 // custom claims
                 //options.AddPolicy("CustomClaimType", policy =>
                 //{
-                //    policy.Requirements.Add(new CustomClaimOperations("UserType", "Heitiki"));
+                //    policy.Requirements.Add(new CustomClaimOperations("HasThisValue"));
                 //});
             });
 
             // services.AddSingleton<IAuthorizationHandler, CustomClaimAuthHandler>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUsersService, UserService>();
             services.AddScoped<IAdminService, AdminService>();
 
             services.AddCors();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -48,17 +49,14 @@ namespace taohi_backend.Controllers
             }
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
-            var claimValues = claims.Select(claim =>
-            {
-                return claim.Value;
-            });
+            // var claimValues = claims.Select(claim => claim.Value);
             var model = new UserViewModel
             {
                 Id = user.Id,
                 Name = user.UserName,
                 Email = user.Email,
                 Roles = roles,
-                Claims = claimValues
+                Claims = claims
             };
             return View(model);
         }
@@ -165,6 +163,13 @@ namespace taohi_backend.Controllers
             var userViewModel = _adminService.ReturnUserViewModel(user);
 
             return Ok(userViewModel);
+        }
+        [AllowAnonymous]
+        public IActionResult Decode(string part)
+        {
+            var bytes = Convert.FromBase64String(part);
+            var decoded = Encoding.UTF8.GetString(bytes);
+            return Ok(decoded);
         }
         public IActionResult CreateNewUser()
         {

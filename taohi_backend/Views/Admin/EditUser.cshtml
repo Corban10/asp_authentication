@@ -82,7 +82,7 @@
 
                 @foreach (var claim in Model.Claims)
                 {
-                    <h5>@claim</h5>
+                    <h5>@claim.Type: @claim.Value</h5>
                 }
             }
         </div>

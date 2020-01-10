@@ -35,6 +35,7 @@ namespace taohi_backend.Services
                     issuer: _config["JwtAuthentication:Issuer"],
                     audience: _config["JwtAuthentication:Audience"],
                     claims: claims,
+                    notBefore: DateTime.UtcNow,
                     expires: DateTime.UtcNow.AddDays(7),
                     signingCredentials: signingCredentials);
 
@@ -54,7 +55,7 @@ namespace taohi_backend.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, user.Email)
                 // appended identity user claims instead
-                // new Claim("ContentType", user.ContentType.ToString()) 
+                // new Claim("UserType", user.UserType.ToString())
             };
         }
         public UserViewModel ReturnUserViewModel(User user)
@@ -65,7 +66,7 @@ namespace taohi_backend.Services
                 Name = user.UserName,
                 Email = user.Email,
                 Token = user.Token,
-                UserType = user.ContentType
+                UserType = user.UserType
             };
         }
     }

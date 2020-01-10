@@ -14,8 +14,8 @@ namespace taohi_backend.Controllers
     public class UserController : ControllerBase
     {
         public UserManager<User> _userManager { get; set; }
-        private readonly IUserService _userService;
-        public UserController(IUserService userService, UserManager<User> userManager)
+        private readonly IUsersService _userService;
+        public UserController(IUsersService userService, UserManager<User> userManager)
         {
             _userService = userService;
             _userManager = userManager;

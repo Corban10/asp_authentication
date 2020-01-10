@@ -13,6 +13,23 @@ namespace taohi_backend.Data
         { }
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // user
+            builder.Entity<User>()
+                .HasIndex(e => e.DisplayName)
+                .IsUnique();
+            builder.Entity<User>()
+                .Property(x => x.UserType)
+                .HasConversion(
+                    e => e.ToString(),
+                    e => (UserType)Enum.Parse(typeof(UserType), e));
+
+            // comments
+            builder.Entity<Comment>()
+                .Property(e => e.ContentType)
+                .HasConversion(
+                    e => e.ToString(),
+                    e => (ContentType)Enum.Parse(typeof(ContentType), e));
+
             base.OnModelCreating(builder);
         }
     }
