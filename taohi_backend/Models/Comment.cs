@@ -13,7 +13,6 @@ namespace taohi_backend.Models
         public Guid ContentId { get; set; }
         [Required]
         public Guid CommenterId { get; set; }
-        public ContentType ContentType { get; set; }
         public DateTime? CreatedDateTime { get; set; }
         public DateTime? UpdatedDateTime { get; set; }
     }

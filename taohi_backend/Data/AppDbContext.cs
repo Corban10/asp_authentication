@@ -8,12 +8,14 @@ namespace taohi_backend.Data
 {
     public class AppDbContext : IdentityDbContext<User, UserRole, Guid>
     {
+        public DbSet<Video> Videos { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         { }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // user
+            // User
             builder.Entity<User>()
                 .HasIndex(e => e.DisplayName)
                 .IsUnique();
@@ -23,8 +25,8 @@ namespace taohi_backend.Data
                     e => e.ToString(),
                     e => (UserType)Enum.Parse(typeof(UserType), e));
 
-            // comments
-            builder.Entity<Comment>()
+            // Video
+            builder.Entity<Video>()
                 .Property(e => e.ContentType)
                 .HasConversion(
                     e => e.ToString(),

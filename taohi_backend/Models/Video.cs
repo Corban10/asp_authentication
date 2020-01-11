@@ -7,7 +7,6 @@ namespace taohi_backend.Models
 {
     public class Video
     {
-
         [Key]
         public Guid VideoId { get; set; }
         [Required]
@@ -18,6 +17,7 @@ namespace taohi_backend.Models
         public string VideoDescription { get; set; }
         [Column("IsPrivate", TypeName = "bit")]
         public bool IsPrivate { get; set; }
+        public ContentType ContentType { get; set; }
         [Required]
         public Guid UserId { get; set; }
         public User User { get; set; }

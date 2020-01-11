@@ -18,13 +18,13 @@
                 <label asp-for="UserName">
                     @Html.DisplayNameFor(m => m.UserName)
                 </label>
-                <input asp-for="UserName" class="form-control" />
+                <input asp-for="UserName" class="form-control" id="loginUserName" />
                 <span asp-validation-for="UserName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Password"></label>
                 <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <span asp-validation-for="Password" class="text-danger" id="loginPassword"></span>
             </div>
             <div class="form-group">
                 <div class="checkbox">

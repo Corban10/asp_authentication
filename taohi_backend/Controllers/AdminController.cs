@@ -13,7 +13,7 @@ using taohi_backend.Models;
 namespace taohi_backend.Controllers
 {
     [Authorize(Policy = "Admin")]
-    [Authorize(Policy = "AdminType")]
+    [Authorize(Policy = "IsActive")]
     public class AdminController : Controller
     {
         public RoleManager<UserRole> _roleManager { get; set; }
@@ -34,10 +34,15 @@ namespace taohi_backend.Controllers
             _adminService = adminService;
             _authService = authService;
         }
-        public IActionResult Index()
+
+        public async Task<IActionResult> Index([FromQuery] string role = "")
         {
-            var users = _userManager.Users;
-            return View(users);
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                return View(await _userManager.GetUsersInRoleAsync(role));
+            }
+
+            return View(await _userManager.Users.ToListAsync());
         }
         public async Task<IActionResult> EditUser(string id)
         {
@@ -50,14 +55,12 @@ namespace taohi_backend.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
             // var claimValues = claims.Select(claim => claim.Value);
-            var model = new UserViewModel
-            {
-                Id = user.Id,
-                Name = user.UserName,
-                Email = user.Email,
-                Roles = roles,
-                Claims = claims
-            };
+            var model = _adminService.ReturnUserViewModel(user);
+            model.Email = user.Email;
+            model.FirstName = user.FirstName;
+            model.LastName = user.LastName;
+            model.Roles = roles;
+            model.Claims = claims;
             return View(model);
         }
         [HttpPost]
@@ -72,7 +75,13 @@ namespace taohi_backend.Controllers
                 return View("Error");
             }
 
-            user.UserName = model.Name;
+            user.UserName = model.UserName;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+
+            user.DisplayName = model.DisplayName;
+            user.DateOfBirth = Convert.ToDateTime(model.DateOfBirth);
+            user.IsActive = model.IsActive;
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -91,7 +100,7 @@ namespace taohi_backend.Controllers
                 ViewBag.ErrorMessage = $"Couldn't find user with Id: {id}";
                 return View("Error");
             }
-            var model = new UserViewModel { Id = user.Id, Name = user.UserName, Email = user.Email };
+            var model = new UserViewModel { Id = user.Id, UserName = user.UserName, Email = user.Email };
             return View(model);
         }
         [HttpPost]

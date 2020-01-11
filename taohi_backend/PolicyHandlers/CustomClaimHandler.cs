@@ -4,19 +4,17 @@ using System.Threading.Tasks;
 
 namespace taohi_backend.PolicyHandlers
 {
-    public class CustomClaimOperations : IAuthorizationRequirement
+    public class CustomClaimRequirement : IAuthorizationRequirement
     {
         public string Value { get; set; }
-        public CustomClaimOperations(string type, string value)
+        public CustomClaimRequirement(string value)
         {
             Value = value;
         }
     }
-    public class CustomClaimAuthHandler : AuthorizationHandler<CustomClaimOperations>
+    public class CustomClaimHandler : AuthorizationHandler<CustomClaimRequirement>
     {
-        protected override Task HandleRequirementAsync(
-            AuthorizationHandlerContext context,
-            CustomClaimOperations requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomClaimRequirement requirement)
         {
             if (context.User.HasClaim("ArbitraryString", requirement.Value))
                 context.Succeed(requirement);

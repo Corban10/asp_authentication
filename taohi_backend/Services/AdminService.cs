@@ -53,7 +53,7 @@ namespace taohi_backend.Services
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // for blacklisting tokens
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email)
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName)
                 // appended identity user claims instead
                 // new Claim("UserType", user.UserType.ToString())
             };
@@ -63,8 +63,10 @@ namespace taohi_backend.Services
             return new UserViewModel
             {
                 Id = user.Id,
-                Name = user.UserName,
-                Email = user.Email,
+                UserName = user.UserName,
+                DisplayName = user.DisplayName,
+                DateOfBirth = user.DateOfBirth.ToShortDateString(),
+                IsActive = user.IsActive,
                 Token = user.Token,
                 UserType = user.UserType
             };

@@ -17,19 +17,18 @@ namespace taohi_backend.Data
         }
         public static async Task AddRolesAndClaims(UserManager<User> userManager, User user)
         {
-            await userManager.AddToRoleAsync(user, "User");
-            await userManager.AddToRoleAsync(user, "Moderator");
-            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(user, user.UserType.ToString());
             var claims = new List<Claim>
             {
-                new Claim("UserType", user.UserType.ToString()),
-                new Claim("IsActive", user.IsActive.ToString())
+                new Claim("IsActive", user.IsActive.ToString()),
+                new Claim(ClaimTypes.DateOfBirth, user.DateOfBirth.ToString())
             };
             await userManager.AddClaimsAsync(user, claims);
 
-            var oldClaim = (await userManager.GetClaimsAsync(user)).Where(claim => claim.Type == "IsActive").First();
-            var newClaim = new Claim("IsActive", (!user.IsActive).ToString());
-            await userManager.ReplaceClaimAsync(user, oldClaim, newClaim);
+            // example replace claim
+            // var oldClaim = (await userManager.GetClaimsAsync(user)).Where(claim => claim.Type == "IsActive").First();
+            // var newClaim = new Claim("IsActive", (!user.IsActive).ToString());
+            // await userManager.ReplaceClaimAsync(user, oldClaim, newClaim);
         }
         public static async Task SeedUsers(UserManager<User> userManager)
         {
@@ -41,13 +40,13 @@ namespace taohi_backend.Data
                 var user = new User();
                 user.FirstName = "corban";
                 user.LastName = "hirawani";
-                user.Age = 26;
+                user.DateOfBirth = new DateTime(1993, 6, 21);
                 user.IsActive = true;
-                user.UserType = UserType.Heitiki;
+                user.UserType = UserType.Admin;
                 user.Email = corbansEmail;
                 user.UserName = corbansEmail;
 
-                IdentityResult result = await userManager.CreateAsync(user, "password");
+                var result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
                     await AddRolesAndClaims(userManager, user);
             }
@@ -56,13 +55,13 @@ namespace taohi_backend.Data
                 var user = new User();
                 user.FirstName = "maraea";
                 user.LastName = "davies";
-                user.Age = 21;
+                user.DateOfBirth = new DateTime(1993, 6, 21);
                 user.IsActive = true;
-                user.UserType = UserType.Heitiki;
+                user.UserType = UserType.Admin;
                 user.Email = maraeasEmail;
                 user.UserName = maraeasEmail;
 
-                IdentityResult result = await userManager.CreateAsync(user, "password");
+                var result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
                     await AddRolesAndClaims(userManager, user);
             }
@@ -71,13 +70,13 @@ namespace taohi_backend.Data
                 var user = new User();
                 user.FirstName = "peter";
                 user.LastName = "palmer";
-                user.Age = 100;
+                user.DateOfBirth = new DateTime(1993, 6, 21);
                 user.IsActive = true;
-                user.UserType = UserType.Heitiki;
+                user.UserType = UserType.Admin;
                 user.Email = petersEmail;
                 user.UserName = petersEmail;
 
-                IdentityResult result = await userManager.CreateAsync(user, "password");
+                var result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
                     await AddRolesAndClaims(userManager, user);
             }
@@ -90,23 +89,18 @@ namespace taohi_backend.Data
                 var role = new UserRole();
                 role.Name = "User";
                 var roleResult = await roleManager.CreateAsync(role);
-                Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
-
             if (!await roleManager.RoleExistsAsync("Moderator"))
             {
                 var role = new UserRole();
                 role.Name = "Moderator";
                 var roleResult = await roleManager.CreateAsync(role);
-                Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
-
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 var role = new UserRole();
                 role.Name = "Admin";
                 var roleResult = await roleManager.CreateAsync(role);
-                Console.WriteLine($"Creating role: {role.Name}...{roleResult}");
             }
         }
     }
