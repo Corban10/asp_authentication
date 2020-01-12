@@ -2,7 +2,6 @@
 {
     public enum ContentType
     {
-        undefined,
         UserProvided,
         SponsorProvided,
         HeitikiProvided

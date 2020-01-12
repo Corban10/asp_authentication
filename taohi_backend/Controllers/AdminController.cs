@@ -35,14 +35,15 @@ namespace taohi_backend.Controllers
             _authService = authService;
         }
 
-        public async Task<IActionResult> Index([FromQuery] string role = "")
+        public async Task<IActionResult> Index([FromQuery] string role)
         {
-            if (!string.IsNullOrWhiteSpace(role))
-            {
-                return View(await _userManager.GetUsersInRoleAsync(role));
-            }
+            IEnumerable<User> users =
+                !string.IsNullOrWhiteSpace(role) ?
+                await _userManager.GetUsersInRoleAsync(role) :
+                users = await _userManager.Users.ToListAsync();
 
-            return View(await _userManager.Users.ToListAsync());
+            var userList = users.Select(user => _adminService.ReturnUserViewModel(user));
+            return View(userList);
         }
         public async Task<IActionResult> EditUser(string id)
         {
@@ -108,7 +109,7 @@ namespace taohi_backend.Controllers
         {
             var modelId = model.Id.ToString();
             var user = await _userManager.FindByIdAsync(modelId);
-            if (user == null)
+            if (user == null || user.Email == "corbanhirawani@gmail.com")
             {
                 ViewBag.ErrorMessage = $"Couldn't find user with Id: {modelId}";
                 return View("Error");
@@ -190,7 +191,12 @@ namespace taohi_backend.Controllers
             if (!ModelState.IsValid)
                 return View();
 
-            var newUser = new User { UserName = model.Email, Email = model.Email };
+            var newUser = new User
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                UserType = model.UserType
+            };
 
             var creationResponse = await _userManager.CreateAsync(newUser, model.Password);
             if (!creationResponse.Succeeded)

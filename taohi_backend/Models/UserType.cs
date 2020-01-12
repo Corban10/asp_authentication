@@ -2,8 +2,7 @@
 {
     public enum UserType
     {
-        undefined,
-        Admin,
-        User
+        User,
+        Admin
     }
 }

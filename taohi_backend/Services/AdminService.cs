@@ -64,6 +64,7 @@ namespace taohi_backend.Services
             {
                 Id = user.Id,
                 UserName = user.UserName,
+                Email = user.Email,
                 DisplayName = user.DisplayName,
                 DateOfBirth = user.DateOfBirth.ToShortDateString(),
                 IsActive = user.IsActive,

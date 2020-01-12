@@ -15,7 +15,7 @@ namespace taohi_backend.Models
         public UserType UserType { get; set; }
         [Required]
         [Column("IsActive", TypeName = "bit")]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
         public DateTime SuspensionTime { get; set; }
         public string Token { get; set; }
         public virtual ICollection<Video> Videos { get; set; }
