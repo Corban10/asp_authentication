@@ -12,11 +12,12 @@ using taohi_backend.Services;
 using taohi_backend.Interfaces;
 using taohi_backend.Data;
 using taohi_backend.Models;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using taohi_backend.PolicyHandlers;
+using System.Net;
+using Newtonsoft.Json;
 
 namespace taohi_backend
 {
@@ -57,8 +58,8 @@ namespace taohi_backend
                 });
 
             services
-                .AddAuthentication("OAuth")
-                .AddJwtBearer("OAuth", options =>
+                .AddAuthentication()
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                 {
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
@@ -69,8 +70,8 @@ namespace taohi_backend
                         OnMessageReceived = context =>
                         {
                             var accessToken = context.Request.Query["access_token"];
-                            // var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken)) // && path.StartsWithSegments("/Messages/Hub")
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/Messages/Hub"))
                             {
                                 context.Token = accessToken;
                             }
@@ -99,14 +100,14 @@ namespace taohi_backend
                 });
                 options.AddPolicy("Moderator", policy =>
                 {
-                    policy.AddAuthenticationSchemes("OAuth");
                     policy.RequireAuthenticatedUser();
+                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
                     policy.RequireRole(new[] { "Admin", "Moderator" });
                 });
                 options.AddPolicy("User", policy =>
                 {
-                    policy.AddAuthenticationSchemes("OAuth");
                     policy.RequireAuthenticatedUser();
+                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
                     policy.RequireRole(new[] { "Admin", "User" });
                 });
                 // claims
@@ -114,22 +115,16 @@ namespace taohi_backend
                 {
                     policy.RequireClaim("IsActive", new[] { "True", "true" });
                 });
-
-                //options.AddPolicy("usertype", policy =>
-                //    policy.RequireAssertion(claim =>
-                //        claim.User.HasClaim("UserType", "Taohi") ||
-                //        claim.User.HasClaim("UserType", "Rangatahi")));
-
                 // custom claims
                 options.AddPolicy("Rangatahi", policy =>
-                    policy.Requirements.Add(new AgeClaimRequirement(11, 31)));
+                    policy.Requirements.Add(new AgeClaimRequirement(11, 20)));
                 options.AddPolicy("Taohi", policy =>
                     policy.Requirements.Add(new AgeClaimRequirement(6, 10)));
             });
 
             services.AddSingleton<IAuthorizationHandler, AgeClaimHandler>();
-            services.AddScoped<IUsersService, UserService>();
-            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IVideoService, VideoService>();
 
             services.AddCors();
             services
@@ -166,6 +161,20 @@ namespace taohi_backend
 
             app.UseStaticFiles();
             app.UseRouting();
+
+            // redirect to login if not authenticated and not api endpoint
+            app.UseStatusCodePages(async context =>
+            {
+                var request = context.HttpContext.Request;
+                var response = context.HttpContext.Response;
+                var path = request.Path.Value ?? "";
+
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized &&
+                    !path.StartsWith("/api", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    response.Redirect("/Main/Login");
+                }
+            });
 
             // who are you?
             app.UseAuthentication();

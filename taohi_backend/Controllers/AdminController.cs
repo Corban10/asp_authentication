@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -16,22 +17,22 @@ namespace taohi_backend.Controllers
     [Authorize(Policy = "IsActive")]
     public class AdminController : Controller
     {
-        public RoleManager<UserRole> _roleManager { get; set; }
-        public UserManager<User> _userManager { get; set; }
-        public SignInManager<User> _signInManager { get; set; }
-        public IAdminService _adminService { get; set; }
-        public IAuthorizationService _authService { get; set; }
+        public RoleManager<UserRole> _roleManager;
+        public UserManager<User> _userManager;
+        public SignInManager<User> _signInManager;
+        public IUserService _userService;
+        public IAuthorizationService _authService;
         public AdminController(
             RoleManager<UserRole> roleManager,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            IAdminService adminService,
+            IUserService userService,
             IAuthorizationService authService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
-            _adminService = adminService;
+            _userService = userService;
             _authService = authService;
         }
 
@@ -42,8 +43,10 @@ namespace taohi_backend.Controllers
                 await _userManager.GetUsersInRoleAsync(role) :
                 users = await _userManager.Users.ToListAsync();
 
-            var userList = users.Select(user => _adminService.ReturnUserViewModel(user));
-            return View(userList);
+            var model = users.Select(user => _userService.ReturnUserViewModel(user));
+            ViewBag.roles = _roleManager.Roles.Select(user => user.Name);
+
+            return View(model);
         }
         public async Task<IActionResult> EditUser(string id)
         {
@@ -55,13 +58,11 @@ namespace taohi_backend.Controllers
             }
             var roles = await _userManager.GetRolesAsync(user);
             var claims = await _userManager.GetClaimsAsync(user);
-            // var claimValues = claims.Select(claim => claim.Value);
-            var model = _adminService.ReturnUserViewModel(user);
-            model.Email = user.Email;
-            model.FirstName = user.FirstName;
-            model.LastName = user.LastName;
+
+            var model = _userService.ReturnUserViewModel(user);
             model.Roles = roles;
             model.Claims = claims;
+
             return View(model);
         }
         [HttpPost]
@@ -79,7 +80,6 @@ namespace taohi_backend.Controllers
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
-
             user.DisplayName = model.DisplayName;
             user.DateOfBirth = Convert.ToDateTime(model.DateOfBirth);
             user.IsActive = model.IsActive;
@@ -144,7 +144,8 @@ namespace taohi_backend.Controllers
             if (user == null)
                 return View();
 
-            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+            // await _signInManager.CreateUserPrincipalAsync(user);
+            var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(_userService.IssueClaims(user)));
             if (!(await _authService.AuthorizeAsync(claimsPrincipal, "Admin")).Succeeded)
                 return RedirectToAction("Logout");
 
@@ -165,21 +166,16 @@ namespace taohi_backend.Controllers
             if (!result.Succeeded)
                 return BadRequest();
 
-            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-            if (!(await _authService.AuthorizeAsync(claimsPrincipal, "Admin")).Succeeded)
+            //var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(_userService.IssueClaims(user)));
+            //if (!(await _authService.AuthorizeAsync(claimsPrincipal, "Admin")).Succeeded)
+            //    return BadRequest();
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
                 return BadRequest();
 
-            user.Token = await _adminService.IssueToken(user);
-            var userViewModel = _adminService.ReturnUserViewModel(user);
+            user.Token = await _userService.IssueToken(user);
+            var userViewModel = _userService.ReturnUserViewModel(user);
 
             return Ok(userViewModel);
-        }
-        [AllowAnonymous]
-        public IActionResult Decode(string part)
-        {
-            var bytes = Convert.FromBase64String(part);
-            var decoded = Encoding.UTF8.GetString(bytes);
-            return Ok(decoded);
         }
         public IActionResult CreateNewUser()
         {
@@ -205,7 +201,7 @@ namespace taohi_backend.Controllers
                 return View();
             }
 
-            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, _adminService.IssueClaims(newUser));
+            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, _userService.IssueClaims(newUser));
             if (!addClaimsResponse.Succeeded)
             {
                 ModelState.AddModelError(string.Empty, "Error registering user.");

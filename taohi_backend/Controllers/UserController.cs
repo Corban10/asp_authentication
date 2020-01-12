@@ -14,21 +14,22 @@ namespace taohi_backend.Controllers
     public class UserController : ControllerBase
     {
         public UserManager<User> _userManager { get; set; }
-        private readonly IUsersService _userService;
-        public UserController(IUsersService userService, UserManager<User> userManager)
+        private readonly IUserService _userService;
+        public UserController(IUserService userService, UserManager<User> userManager)
         {
             _userService = userService;
             _userManager = userManager;
         }
+        [Authorize(Policy = "Admin")]
         [HttpGet("GetId")]
         public IActionResult GetId()
         {
-            var name = User.FindFirstValue(ClaimTypes.Name);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(userId))
                 return BadRequest();
 
-            return Ok(name);
+            return Ok(userId);
         }
         [AllowAnonymous]
         [HttpPost("Authenticate")]
@@ -46,10 +47,10 @@ namespace taohi_backend.Controllers
             if (token == null)
                 return BadRequest();
 
-            return Ok(new
-            {
-                token
-            });
+            user.Token = token;
+            var userViewModel = _userService.ReturnUserViewModel(user);
+
+            return Ok(userViewModel);
         }
     }
 }

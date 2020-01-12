@@ -1,12 +1,14 @@
 ﻿@{
     ViewData["Title"] = "Users";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var roles = ViewBag.roles;
 }
 
 @if (User.Identity.IsAuthenticated)
 {
     @using taohi_backend.Models;
-    @model IEnumerable<UserViewModel>
+
+    @model IEnumerable<UserViewModel>;
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
     <div class="container">
@@ -21,9 +23,10 @@
                 <label>Filter by role:</label>
                 <select onchange="this.form.submit()" name="role" class="form-control" default="">
                     <option value="">Select role</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Moderator">Moderator</option>
-                    <option value="User">User</option>
+                    @foreach (var role in roles)
+                    {
+                        <option value="@role">@role</option>
+                    }
                 </select>
             </form>
         </div>
@@ -53,7 +56,6 @@
                     <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-primary">Edit</a>
                     @if (user.UserType != UserType.Admin)
                     {
-                        <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-danger">Suspend</a>
                     }
                     <a asp-action="DeleteUser" asp-route-id="@user.Id" class="btn btn-danger">Delete</a>
                 </div>

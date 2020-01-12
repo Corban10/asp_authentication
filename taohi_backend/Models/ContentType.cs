@@ -2,8 +2,9 @@
 {
     public enum ContentType
     {
-        UserProvided,
-        SponsorProvided,
-        HeitikiProvided
+        Undefined,
+        Provided,
+        Taohi,
+        Rangatahi
     }
 }
