@@ -8,7 +8,8 @@ namespace taohi_backend.Interfaces
     public interface IUserService
     {
         public Task<string> IssueToken(User user);
-        public List<Claim> IssueClaims(User user);
+        public List<Claim> IssueTokenClaims(User user);
         public UserViewModel ReturnUserViewModel(User user);
+        public Task UpdateClaims(User user);
     }
 }

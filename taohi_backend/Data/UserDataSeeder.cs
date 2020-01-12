@@ -18,17 +18,13 @@ namespace taohi_backend.Data
         public static async Task AddRolesAndClaims(UserManager<User> userManager, User user)
         {
             await userManager.AddToRoleAsync(user, user.UserType.ToString());
-            //var claims = new List<Claim>
-            //{
-            //    new Claim("IsActive", user.IsActive.ToString()),
-            //    new Claim(ClaimTypes.Role, user.UserType.ToString()),
-            //};
-            //await userManager.AddClaimsAsync(user, claims);
-
-            // example replace claim
-            // var oldClaim = (await userManager.GetClaimsAsync(user)).Where(claim => claim.Type == "IsActive").First();
-            // var newClaim = new Claim("IsActive", (!user.IsActive).ToString());
-            // await userManager.ReplaceClaimAsync(user, oldClaim, newClaim);
+            var claims = new List<Claim>
+            {
+                new Claim("IsActive", user.IsActive.ToString()), // for blacklisting tokens
+                new Claim(ClaimTypes.Role, user.UserType.ToString()),
+                new Claim(ClaimTypes.DateOfBirth, user.DateOfBirth.ToString()),
+            };
+            await userManager.AddClaimsAsync(user, claims);
         }
         public static async Task SeedUsers(UserManager<User> userManager)
         {
