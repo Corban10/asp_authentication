@@ -8,19 +8,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace taohi_backend.Controllers
 {
-    [Authorize(Policy = "User")]
+    [Authorize(Policy = "Jwt")]
+    [Authorize(Policy = "IsActive")]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        public UserManager<User> _userManager { get; set; }
+        public UserManager<User> _userManager;
+        public SignInManager<User> _signInManager;
         private readonly IUserService _userService;
-        public UserController(IUserService userService, UserManager<User> userManager)
+        public IAuthorizationService _authService;
+        public UserController(
+            IUserService userService,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IAuthorizationService authService)
         {
             _userService = userService;
             _userManager = userManager;
+            _signInManager = signInManager;
+            _authService = authService;
         }
-        [Authorize(Policy = "Admin")]
+        [Authorize(Roles = "User, Admin")]
         [HttpGet("GetId")]
         public IActionResult GetId()
         {
@@ -33,21 +42,25 @@ namespace taohi_backend.Controllers
         }
         [AllowAnonymous]
         [HttpPost("Authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel loginUser)
+        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel model)
         {
-            var user = await _userManager.FindByNameAsync(loginUser.username);
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var user = await _userManager.FindByNameAsync(model.username);
             if (user == null)
                 return BadRequest();
 
-            var signedIn = await _userManager.CheckPasswordAsync(user, loginUser.password);
-            if (!signedIn)
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.password, false);
+            if (!result.Succeeded)
                 return BadRequest();
 
-            var token = await _userService.IssueToken(user);
-            if (token == null)
+            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+            var isActive = await _authService.AuthorizeAsync(claimsPrincipal, "IsActive");
+            if (!isActive.Succeeded)
                 return BadRequest();
 
-            user.Token = token;
+            user.Token = await _userService.IssueToken(user);
             var userViewModel = _userService.ReturnUserViewModel(user);
 
             return Ok(userViewModel);

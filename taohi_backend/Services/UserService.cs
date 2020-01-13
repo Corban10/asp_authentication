@@ -49,13 +49,21 @@ namespace taohi_backend.Services
         }
         public List<Claim> IssueTokenClaims(User user)
         {
-            var tokenClaims = new List<Claim>
+            return new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // for blacklisting tokens
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
             };
-            return tokenClaims;
+        }
+        public List<Claim> IssueIdentityClaims(User user)
+        {
+            return new List<Claim>
+            {
+                new Claim("IsActive", user.IsActive.ToString()), // for blacklisting tokens
+                new Claim(ClaimTypes.Role, user.UserType.ToString()),
+                new Claim(ClaimTypes.DateOfBirth, user.DateOfBirth.ToString()),
+            };
         }
         public async Task UpdateClaims(User user)
         {
@@ -97,12 +105,12 @@ namespace taohi_backend.Services
             return new UserViewModel
             {
                 Id = user.Id,
-                UserName = user.UserName,
                 DisplayName = user.DisplayName,
-                DateOfBirth = user.DateOfBirth.ToShortDateString(),
                 IsActive = user.IsActive,
-                Token = user.Token,
-                UserType = user.UserType
+                UserType = user.UserType,
+                UserName = user.UserName,
+                DateOfBirth = user.DateOfBirth.ToShortDateString(),
+                Token = user.Token
             };
         }
     }

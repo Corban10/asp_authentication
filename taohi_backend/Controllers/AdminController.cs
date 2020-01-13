@@ -100,6 +100,16 @@ namespace taohi_backend.Controllers
 
             await _userService.UpdateRole(user);
             await _userService.UpdateClaims(user);
+
+            var loggedInUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            // refresh cookie if logged in user is modified
+            if (user.Id == new Guid(loggedInUserId))
+            {
+                var loggedinUser = await _userManager.FindByIdAsync(loggedInUserId);
+                await _signInManager.SignOutAsync();
+                await _signInManager.SignInAsync(loggedinUser, true, "");
+            }
+
             return RedirectToAction("Index");
         }
         public async Task<IActionResult> DeleteUser(string id)
@@ -119,10 +129,7 @@ namespace taohi_backend.Controllers
             var modelId = model.Id.ToString();
             var user = await _userManager.FindByIdAsync(modelId);
             if (user == null || user.Email == "corbanhirawani@gmail.com")
-            {
-                ViewBag.ErrorMessage = $"Couldn't find user with Id: {modelId}";
                 return View("Error");
-            }
 
             await _userManager.DeleteAsync(user);
             await _userService.DeleteUserClaims(user);
@@ -164,32 +171,6 @@ namespace taohi_backend.Controllers
 
             return RedirectToAction("Index");
         }
-        [AllowAnonymous]
-        [HttpPost]
-        public async Task<IActionResult> Authenticate([FromBody] AuthViewModel model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var user = await _userManager.FindByNameAsync(model.username);
-            if (user == null)
-                return BadRequest();
-
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.password, false);
-            if (!result.Succeeded)
-                return BadRequest();
-
-            var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
-            var isAdmin = await _authService.AuthorizeAsync(claimsPrincipal, "Admin");
-            var isActive = await _authService.AuthorizeAsync(claimsPrincipal, "IsActive");
-            if (!isAdmin.Succeeded || !isActive.Succeeded)
-                return BadRequest();
-
-            user.Token = await _userService.IssueToken(user);
-            var userViewModel = _userService.ReturnUserViewModel(user);
-
-            return Ok(userViewModel);
-        }
         public IActionResult NewUser()
         {
             return View();
@@ -213,8 +194,8 @@ namespace taohi_backend.Controllers
                 ModelState.AddModelError(string.Empty, "Error registering user.");
                 return View();
             }
-
-            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, _userService.IssueTokenClaims(newUser));
+            var claims = _userService.IssueIdentityClaims(newUser);
+            var addClaimsResponse = await _userManager.AddClaimsAsync(newUser, claims);
             if (!addClaimsResponse.Succeeded)
             {
                 ModelState.AddModelError(string.Empty, "Error registering user.");

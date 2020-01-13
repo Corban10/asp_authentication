@@ -92,30 +92,20 @@ namespace taohi_backend
 
             services.AddAuthorization(options =>
             {
-                // roles
                 options.AddPolicy("Admin", policy =>
                 {
                     policy.RequireAuthenticatedUser();
                     policy.RequireRole("Admin");
                 });
-                options.AddPolicy("Moderator", policy =>
+                options.AddPolicy("Jwt", policy =>
                 {
                     policy.RequireAuthenticatedUser();
                     policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireRole(new[] { "Admin", "Moderator" });
                 });
-                options.AddPolicy("User", policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireRole(new[] { "Admin", "User" });
-                });
-                // claims
                 options.AddPolicy("IsActive", policy =>
                 {
                     policy.RequireClaim("IsActive", new[] { "True", "true" });
                 });
-                // custom claims
                 options.AddPolicy("Rangatahi", policy =>
                     policy.Requirements.Add(new AgeClaimRequirement(11, 20)));
                 options.AddPolicy("Taohi", policy =>
