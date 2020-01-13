@@ -84,19 +84,19 @@ namespace taohi_backend.Data
             {
                 var role = new UserRole();
                 role.Name = "User";
-                var roleResult = await roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(role);
             }
             if (!await roleManager.RoleExistsAsync("Moderator"))
             {
                 var role = new UserRole();
                 role.Name = "Moderator";
-                var roleResult = await roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(role);
             }
             if (!await roleManager.RoleExistsAsync("Admin"))
             {
                 var role = new UserRole();
                 role.Name = "Admin";
-                var roleResult = await roleManager.CreateAsync(role);
+                await roleManager.CreateAsync(role);
             }
         }
     }

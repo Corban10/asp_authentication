@@ -44,8 +44,7 @@ namespace taohi_backend.Controllers
                 users = await _userManager.Users.ToListAsync();
 
             var model = users.Select(user => _userService.ReturnUserViewModel(user));
-            ViewBag.roles = _roleManager.Roles.Select(user => user.Name);
-
+            ViewBag.roles = _roleManager.Roles.Select(r => r.Name);
             return View(model);
         }
         public async Task<IActionResult> EditUser(string id)
@@ -60,9 +59,13 @@ namespace taohi_backend.Controllers
             var claims = await _userManager.GetClaimsAsync(user);
 
             var model = _userService.ReturnUserViewModel(user);
+            model.FirstName = user.FirstName;
+            model.LastName = user.LastName;
+            model.Email = user.Email;
             model.Roles = roles;
             model.Claims = claims;
 
+            ViewBag.roles = _roleManager.Roles.Select(r => r.Name);
             return View(model);
         }
         [HttpPost]
@@ -83,6 +86,10 @@ namespace taohi_backend.Controllers
             user.DisplayName = model.DisplayName;
             user.DateOfBirth = Convert.ToDateTime(model.DateOfBirth);
             user.IsActive = model.IsActive;
+            if (user.UserType != model.UserType)
+            {
+                user.UserType = model.UserType;
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -91,6 +98,7 @@ namespace taohi_backend.Controllers
                 return View("Error");
             }
 
+            await _userService.UpdateRole(user);
             await _userService.UpdateClaims(user);
             return RedirectToAction("Index");
         }
@@ -115,12 +123,11 @@ namespace taohi_backend.Controllers
                 ViewBag.ErrorMessage = $"Couldn't find user with Id: {modelId}";
                 return View("Error");
             }
-            var result = await _userManager.DeleteAsync(user);
-            if (!result.Succeeded)
-            {
-                ViewBag.ErrorMessage = $"Error deleting user with Id: {modelId}";
-                return View("Error");
-            }
+
+            await _userManager.DeleteAsync(user);
+            await _userService.DeleteUserClaims(user);
+            await _userService.RemoveUserRoles(user);
+
             return RedirectToAction("Index");
         }
         [AllowAnonymous]
@@ -183,12 +190,12 @@ namespace taohi_backend.Controllers
 
             return Ok(userViewModel);
         }
-        public IActionResult CreateNewUser()
+        public IActionResult NewUser()
         {
             return View();
         }
         [HttpPost]
-        public async Task<IActionResult> CreateNewUser(RegisterViewModel model)
+        public async Task<IActionResult> NewUser(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
                 return View();
@@ -227,152 +234,6 @@ namespace taohi_backend.Controllers
         {
             var roles = _roleManager.Roles;
             return View(roles);
-        }
-        public IActionResult CreateRole()
-        {
-            return View();
-        }
-        [HttpPost]
-        public async Task<IActionResult> CreateRole(CreateRoleViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var newRole = new UserRole { Name = model.RoleName };
-                var result = await _roleManager.CreateAsync(newRole);
-                if (!result.Succeeded)
-                    foreach (IdentityError error in result.Errors)
-                        ModelState.AddModelError(string.Empty, error.Description);
-            }
-            return RedirectToAction("ListRoles");
-        }
-        public async Task<IActionResult> EditRole(string id)
-        {
-            var role = await _roleManager.FindByIdAsync(id);
-            if (role == null)
-            {
-                ViewBag.ErrorMessage = $"Role with Id {id} was not found";
-                return View("Error");
-            }
-
-            var users = await _userManager.GetUsersInRoleAsync(role.Name);
-            var userIds = new List<string>();
-            foreach (var user in users)
-                userIds.Add(user.Email);
-
-            var model = new EditRoleViewModel
-            {
-                Id = role.Id,
-                RoleName = role.Name,
-                Users = userIds
-            };
-            return View(model);
-        }
-        [HttpPost]
-        public async Task<IActionResult> EditRole(EditRoleViewModel role)
-        {
-            if (!ModelState.IsValid)
-            {
-                ModelState.AddModelError(string.Empty, "Error updating role.");
-                return View(role);
-            }
-
-            var updateRole = await _roleManager.FindByIdAsync(role.Id.ToString());
-            if (updateRole == null)
-            {
-                ModelState.AddModelError(string.Empty, "Error updating role.");
-                return View(role);
-            }
-
-            updateRole.Name = role.RoleName;
-
-            var result = await _roleManager.UpdateAsync(updateRole);
-            if (!result.Succeeded)
-            {
-                ModelState.AddModelError(string.Empty, "Error updating role.");
-                return View(role);
-            }
-
-            return RedirectToAction("ListRoles");
-        }
-        public async Task<IActionResult> EditUserRole(string id)
-        {
-            var role = await _roleManager.FindByIdAsync(id);
-            if (role == null)
-            {
-                ViewBag.ErrorMessage = $"Role with Id {id} was not found";
-                return View("Error");
-            }
-            ViewBag.RoleId = role.Id;
-
-            var usersInRole = new List<UserRoleViewModel>();
-            var allUsers = await _userManager.Users.ToListAsync();
-            foreach (var userItem in allUsers)
-            {
-                var user = new UserRoleViewModel
-                {
-                    UserId = userItem.Id.ToString(),
-                    UserName = userItem.UserName,
-                    IsSelected = await _userManager.IsInRoleAsync(userItem, role.Name)
-                };
-                usersInRole.Add(user);
-            }
-            var model = new EditUserRoleViewModel { Id = role.Id, Users = usersInRole };
-            return View(model);
-        }
-        [HttpPost]
-        public async Task<IActionResult> EditUserRole(EditUserRoleViewModel model)
-        {
-            if (!ModelState.IsValid)
-                ModelState.AddModelError(string.Empty, "Error updating role.");
-
-            var roleId = model.Id.ToString();
-            var role = await _roleManager.FindByIdAsync(roleId);
-            if (role == null)
-            {
-                ViewBag.ErrorMessage = $"Role with Id {roleId} was not found";
-                return View("Error");
-            }
-
-            var roleChanges = model.Users;
-            var allUsers = await _userManager.Users.ToListAsync();
-            for (int i = 0; i < allUsers.Count; i++)
-            {
-                if (roleChanges[i].IsSelected != await _userManager.IsInRoleAsync(allUsers[i], role.Name))
-                {
-                    if (roleChanges[i].IsSelected)
-                        await _userManager.AddToRoleAsync(allUsers[i], role.Name);
-                    else
-                        await _userManager.RemoveFromRoleAsync(allUsers[i], role.Name);
-                }
-            }
-            return Redirect($"~/Admin/EditRole/{role.Id.ToString()}");
-        }
-        public async Task<IActionResult> DeleteRole(string id)
-        {
-            var role = await _roleManager.FindByIdAsync(id);
-            if (role == null)
-            {
-                ViewBag.ErrorMessage = $"No Role with Id: {id} was found";
-                return View("Error");
-            }
-            return View(role);
-        }
-        [HttpPost]
-        public async Task<IActionResult> DeleteRole(DeleteRoleViewModel role)
-        {
-            var oldRole = await _roleManager.FindByIdAsync(role.Id.ToString());
-            if (oldRole == null)
-            {
-                ViewBag.ErrorMessage = $"Couldn't find role with Id: {oldRole.Id}";
-                return View("Error");
-            }
-            var result = await _roleManager.DeleteAsync(oldRole);
-            if (!result.Succeeded)
-            {
-                ViewBag.ErrorMessage = $"Error deleting role with Id: {oldRole.Id}";
-                return View("Error");
-            }
-            return RedirectToAction("ListRoles");
         }
         [AllowAnonymous]
         public async Task<IActionResult> Logout()

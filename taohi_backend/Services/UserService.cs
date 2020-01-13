@@ -60,22 +60,36 @@ namespace taohi_backend.Services
         public async Task UpdateClaims(User user)
         {
             await ReplaceClaim(user, "IsActive", user.IsActive.ToString());
-            await ReplaceClaim(user, ClaimTypes.Role, user.UserType.ToString());
+            await ReplaceClaim(user, ClaimTypes.Role, (await _userManager.GetRolesAsync(user)).First());
             await ReplaceClaim(user, ClaimTypes.DateOfBirth, user.DateOfBirth.ToString());
+        }
+        public async Task UpdateRole(User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, roles.ToArray());
+            await _userManager.AddToRoleAsync(user, user.UserType.ToString());
+        }
+        public async Task DeleteUserClaims(User user)
+        {
+            var claims = await _userManager.GetClaimsAsync(user);
+            await _userManager.RemoveClaimsAsync(user, claims.ToArray());
+        }
+        public async Task RemoveUserRoles(User user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, roles.ToArray());
         }
         private async Task ReplaceClaim(User user, string claimName, string claimValue)
         {
-            var claims = await _userManager.GetClaimsAsync(user);
-            var oldClaim = claims.Where(claim => claim.Type == claimName);
-            if (!oldClaim.Any())
+            var oldClaim = new ClaimsIdentity(await _userManager.GetClaimsAsync(user)).FindFirst(claimName);
+            var newClaim = new Claim(claimName, claimValue);
+            if (oldClaim == null)
             {
-                var newClaim = new Claim(claimName, claimValue);
                 await _userManager.AddClaimAsync(user, newClaim);
             }
             else
             {
-                var newClaim = new Claim(claimName, claimValue);
-                await _userManager.ReplaceClaimAsync(user, oldClaim.First(), newClaim);
+                await _userManager.ReplaceClaimAsync(user, oldClaim, newClaim);
             }
         }
         public UserViewModel ReturnUserViewModel(User user)

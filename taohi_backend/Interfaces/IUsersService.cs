@@ -11,5 +11,8 @@ namespace taohi_backend.Interfaces
         public List<Claim> IssueTokenClaims(User user);
         public UserViewModel ReturnUserViewModel(User user);
         public Task UpdateClaims(User user);
+        public Task UpdateRole(User user);
+        public Task DeleteUserClaims(User user);
+        public Task RemoveUserRoles(User user);
     }
 }

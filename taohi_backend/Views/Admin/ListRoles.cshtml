@@ -6,46 +6,21 @@
 @model IEnumerable<UserRole>
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-    <div class="container">
-        @if (!Model.Any())
+<div class="container">
+    @if (Model.Any())
+    {
+        <h1>Roles</h1>
+        <hr />
+        foreach (var role in Model)
         {
-            <div class="card">
+            <div class="card mb-2">
                 <div class="card-header">
-                    No roles created yet
+                    Role Id : @role.Id
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">
-                        Use the button below to create a role
-                    </h5>
-                    <a class="btn btn-primary" style="width:auto"
-                       asp-controller="Admin" asp-action="CreateRole">
-                        Create Role
-                    </a>
+                    <h5 class="card-title">@role.Name</h5>
                 </div>
             </div>
         }
-        else
-        {
-            <h1>Roles</h1>
-            <hr />
-            <a asp-action="CreateRole" class="btn btn-primary" style="width:auto;">
-                Create New Role
-            </a>
-            <hr />
-            foreach (var role in Model)
-            {
-                <div class="card mb-2">
-                    <div class="card-header">
-                        Role Id : @role.Id
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">@role.Name</h5>
-                    </div>
-                    <div class="card-footer">
-                        <a asp-action="EditRole" asp-route-id="@role.Id" class="btn btn-primary">Edit</a>
-                        <a asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-danger">Delete</a>
-                    </div>
-                </div>
-            }
-        }
-    </div>
+    }
+</div>
