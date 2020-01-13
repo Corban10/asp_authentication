@@ -3,12 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace taohi_backend.Models
 {
-    public class Video
+    public class Text
     {
-        public Guid VideoId { get; set; }
-        public string VideoUrl { get; set; }
-        public string VideoTitle { get; set; }
-        public string VideoDescription { get; set; }
+        public Guid TextId { get; set; }
+        public string TextContent { get; set; }
         [Column("IsPrivate", TypeName = "bit")]
         public bool IsPrivate { get; set; }
         public ContentType ContentType { get; set; }

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using taohi_backend.PolicyHandlers;
 using System.Net;
 using Newtonsoft.Json;
+using taohi_backend.Hubs;
 
 namespace taohi_backend
 {
@@ -114,7 +115,13 @@ namespace taohi_backend
 
             services.AddSingleton<IAuthorizationHandler, AgeClaimHandler>();
             services.AddScoped<IUserService, UserService>();
+
             services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<ITextService, TextService>();
+            services.AddScoped<IImageService, ImageService>();
+
+            services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<IMessageService, MessageService>();
 
             services.AddCors();
             services
@@ -125,6 +132,7 @@ namespace taohi_backend
                     options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                 });
+            services.AddSignalR();
         }
 
         public void Configure(
@@ -175,6 +183,7 @@ namespace taohi_backend
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<MessageHub>("/Messages/Hub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action}/{id?}",

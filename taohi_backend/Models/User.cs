@@ -17,6 +17,12 @@ namespace taohi_backend.Models
         public bool IsActive { get; set; } = true;
         public DateTime SuspensionTime { get; set; }
         public string Token { get; set; }
+        public virtual Profile UserProfile { get; set; }
         public virtual ICollection<Video> Videos { get; set; }
+        public virtual ICollection<Image> Images { get; set; }
+        public virtual ICollection<Text> Texts { get; set; }
+        [NotMapped]
+        public virtual ICollection<Message> Messages { get; set; }
+        public virtual ICollection<Relationship> Relationships { get; set; }
     }
 }

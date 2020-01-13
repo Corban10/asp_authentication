@@ -12,78 +12,78 @@ namespace taohi_backend.Controllers
     [Authorize(Policy = "IsActive")]
     [ApiController]
     [Route("api/[controller]")]
-    public class VideosController : ControllerBase
+    public class TextsController : ControllerBase
     {
-        private readonly IVideoService _videoService;
+        private readonly ITextService _textService;
         public UserManager<User> _userManager;
-        public VideosController(IVideoService videoService, UserManager<User> userManager)
+        public TextsController(ITextService textService, UserManager<User> userManager)
         {
-            _videoService = videoService;
+            _textService = textService;
             _userManager = userManager;
         }
-        // GET: api/Videos
+        // GET: api/Texts
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var videos = await _videoService.GetAll(User);
-            return Ok(videos);
+            var texts = await _textService.GetAll(User);
+            return Ok(texts);
         }
-        // GET: api/Videos
+        // GET: api/Texts
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var videos = await _videoService.GetById(id, User);
-            return Ok(videos);
+            var texts = await _textService.GetById(id, User);
+            return Ok(texts);
         }
-        // POST: api/Videos
+        // POST: api/Texts
         [HttpPost]
-        public async Task<IActionResult> PostVideo([FromBody] Video video)
+        public async Task<IActionResult> PostText([FromBody] Text text)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var postedVideo = await _videoService.PostNew(video, User);
-            if (postedVideo == null)
+            var postedText = await _textService.PostNew(text, User);
+            if (postedText == null)
                 return BadRequest();
 
-            return Ok(video);
+            return Ok(text);
         }
 
-        // PUT: api/Videos/5
+        // PUT: api/Texts/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutVideo([FromRoute] Guid id, [FromBody] Video video)
+        public async Task<IActionResult> PutText([FromRoute] Guid id, [FromBody] Text text)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            video.VideoId = id;
-            var result = await _videoService.PutById(video, User);
+            text.TextId = id;
+            var result = await _textService.PutById(text, User);
             if (result == null)
                 return BadRequest();
 
             return Ok(result);
         }
 
-        // DELETE: api/Videos/5
+        // DELETE: api/Texts/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVideo(Guid id)
         {
-            var deletedVideo = await _videoService.DeleteById(id, User);
-            if (deletedVideo == null)
+            var deletedText = await _textService.DeleteById(id, User);
+            if (deletedText == null)
                 return BadRequest();
 
-            return Ok(new { id = deletedVideo.VideoId });
+            return Ok(new { id = deletedText.TextId });
         }
 
-        // POST: api/Videos/ToggleIsPrivate/5
+        // POST: api/Texts/ToggleIsPrivate/5
         [HttpPost("ToggleIsPrivate/{id}")]
         public async Task<IActionResult> ToggleIsPrivate(Guid id)
         {
-            var video = await _videoService.ToggleIsPrivate(id, User);
-            if (video == null)
+            var text = await _textService.ToggleIsPrivate(id, User);
+            if (text == null)
                 return BadRequest();
 
-            return Ok(video);
+            return Ok(text);
         }
     }
 }

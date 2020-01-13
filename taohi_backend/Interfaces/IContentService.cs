@@ -19,4 +19,10 @@ namespace taohi_backend.Interfaces
     public interface IVideoService : IContentService<Video>
     {
     }
+    public interface ITextService : IContentService<Text>
+    {
+    }
+    public interface IImageService : IContentService<Image>
+    {
+    }
 }
