@@ -15,7 +15,8 @@ namespace taohi_backend.Models
         public ContentType ContentType { get; set; }
         [Column("IsActive", TypeName = "bit")]
         public bool IsActive { get; set; } = true;
-        public DateTime SuspensionTime { get; set; }
+        // in days
+        public int SuspensionTime { get; set; }
         public string Token { get; set; }
         public virtual Profile UserProfile { get; set; }
         public virtual ICollection<Video> Videos { get; set; }

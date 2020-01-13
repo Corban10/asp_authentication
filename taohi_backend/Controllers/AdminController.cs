@@ -85,10 +85,16 @@ namespace taohi_backend.Controllers
             user.LastName = model.LastName;
             user.DisplayName = model.DisplayName;
             user.DateOfBirth = Convert.ToDateTime(model.DateOfBirth);
+            user.UserType = model.UserType;
             user.IsActive = model.IsActive;
-            if (user.UserType != model.UserType)
+            if (!user.IsActive)
             {
-                user.UserType = model.UserType;
+                await _userManager.SetLockoutEnabledAsync(user, true);
+                await _userManager.SetLockoutEndDateAsync(user, DateTime.Today.AddDays(user.SuspensionTime));
+            }
+            else
+            {
+                await _userManager.SetLockoutEnabledAsync(user, false);
             }
 
             var result = await _userManager.UpdateAsync(user);

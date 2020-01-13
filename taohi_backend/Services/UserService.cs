@@ -22,6 +22,8 @@ namespace taohi_backend.Services
             _config = config;
             _userManager = userManager;
         }
+
+        // Authentication
         public async Task<string> IssueToken(User user)
         {
             try
@@ -112,6 +114,58 @@ namespace taohi_backend.Services
                 DateOfBirth = user.DateOfBirth.ToShortDateString(),
                 Token = user.Token
             };
+        }
+
+        // Crud
+        public Task<UserType> GetById(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<IEnumerable<User>> GetAll()
+        {
+            throw new NotImplementedException();
+        }
+        public Task<UserType> PutById(UserViewModel user, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<UserType> PostNew(UserViewModel user)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<UserType> DeleteById(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<User> ToggleIsActive(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Relationships
+        public Task<Relationship> GetRelationship(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Relationship> CreateRelationship(Guid rightUserID, Guid leftUserID)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Relationship> BlockUser(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Relationship> UnblockUser(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Relationship> FollowUser(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
+        }
+        public Task<Relationship> UnfollowUser(Guid id, ClaimsPrincipal claim)
+        {
+            throw new NotImplementedException();
         }
     }
 }
