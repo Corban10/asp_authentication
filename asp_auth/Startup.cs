@@ -6,12 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using taohi_backend.Services;
 using taohi_backend.Interfaces;
-using taohi_backend.Data;
-using taohi_backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +18,8 @@ using taohi_backend.PolicyHandlers;
 using System.Net;
 using Newtonsoft.Json;
 using taohi_backend.Hubs;
+using taohi_backend.Data;
+using taohi_backend.Models;
 
 namespace taohi_backend
 {
@@ -59,8 +60,8 @@ namespace taohi_backend
                 });
 
             services
-                .AddAuthentication()
-                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+                .AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
                 {
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
@@ -98,29 +99,26 @@ namespace taohi_backend
                     policy.RequireAuthenticatedUser();
                     policy.RequireRole("Admin");
                 });
-                options.AddPolicy("Jwt", policy =>
+                options.AddPolicy("Bearer", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AddAuthenticationSchemes("Bearer");
                 });
                 options.AddPolicy("IsActive", policy =>
                 {
                     policy.RequireClaim("IsActive", new[] { "True", "true" });
                 });
-                options.AddPolicy("Rangatahi", policy =>
-                    policy.Requirements.Add(new AgeClaimRequirement(11, 20)));
-                options.AddPolicy("Taohi", policy =>
-                    policy.Requirements.Add(new AgeClaimRequirement(6, 10)));
+                options.AddPolicy("Child", policy =>
+                    policy.Requirements.Add(new AgeClaimRequirement(1, 12)));
+                options.AddPolicy("Teenager", policy =>
+                    policy.Requirements.Add(new AgeClaimRequirement(13, 19)));
+                options.AddPolicy("Adult", policy =>
+                    policy.Requirements.Add(new AgeClaimRequirement(20, 99)));
             });
 
             services.AddSingleton<IAuthorizationHandler, AgeClaimHandler>();
             services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped<IVideoService, VideoService>();
-            services.AddScoped<ITextService, TextService>();
-            services.AddScoped<IImageService, ImageService>();
-
-            services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IMessageService, MessageService>();
 
             services.AddCors();

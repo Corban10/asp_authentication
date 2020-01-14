@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using taohi_backend.Interfaces;
 
 namespace taohi_backend.Controllers
 {
+    [Authorize(Policy = "Bearer")]
+    [Authorize(Policy = "IsActive")]
+    [ApiController]
+    [Route("api/[controller]")]
     public class MessagesController : Controller
     {
         private readonly IMessageService _service;

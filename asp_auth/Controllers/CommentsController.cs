@@ -7,7 +7,7 @@ using taohi_backend.Models;
 
 namespace taohi_backend.Controllers
 {
-    [Authorize(Policy = "Jwt")]
+    [Authorize(Policy = "Bearer")]
     [Authorize(Policy = "IsActive")]
     [ApiController]
     [Route("api/[controller]")]

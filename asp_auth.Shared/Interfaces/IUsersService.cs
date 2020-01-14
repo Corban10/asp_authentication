@@ -25,13 +25,5 @@ namespace taohi_backend.Interfaces
         Task<UserType> PostNew(UserViewModel user);
         Task<UserType> DeleteById(Guid id);
         Task<User> ToggleIsActive(Guid id, ClaimsPrincipal claim);
-
-        // Relationships
-        Task<Relationship> GetRelationship(Guid id, ClaimsPrincipal claim);
-        Task<Relationship> CreateRelationship(Guid rightUserID, Guid leftUserID);
-        Task<Relationship> BlockUser(Guid id, ClaimsPrincipal claim);
-        Task<Relationship> UnblockUser(Guid id, ClaimsPrincipal claim);
-        Task<Relationship> FollowUser(Guid id, ClaimsPrincipal claim);
-        Task<Relationship> UnfollowUser(Guid id, ClaimsPrincipal claim);
     }
 }
