@@ -1,7 +1,7 @@
 # Asp_authentication
 chat messaging using both cookie and jwt authentication in asp.net core 3.1
 
-# Rrequirements:
+# Requirements:
 #### MySql
 #### Asp.net Core 3.1
 
