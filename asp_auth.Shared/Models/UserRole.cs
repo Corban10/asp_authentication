@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 
-namespace taohi_backend.Models
+namespace asp_auth.Models
 {
     public class UserRole : IdentityRole<Guid>
     {

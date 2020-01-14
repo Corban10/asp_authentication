@@ -1,12 +1,12 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using taohi_backend.Interfaces;
-using taohi_backend.Models;
+using asp_auth.Interfaces;
+using asp_auth.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace taohi_backend.Controllers
+namespace asp_auth.Controllers
 {
     [Authorize(Policy = "Bearer")]
     [Authorize(Policy = "IsActive")]

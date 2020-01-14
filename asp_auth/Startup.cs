@@ -1,27 +1,26 @@
 using System;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using taohi_backend.Services;
-using taohi_backend.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using taohi_backend.PolicyHandlers;
-using System.Net;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Newtonsoft.Json;
-using taohi_backend.Hubs;
-using taohi_backend.Data;
-using taohi_backend.Models;
+using asp_auth.Hubs;
+using asp_auth.Data;
+using asp_auth.Models;
+using asp_auth.Services;
+using asp_auth.Interfaces;
+using asp_auth.PolicyHandlers;
 
-namespace taohi_backend
+namespace asp_auth
 {
     public class Startup
     {

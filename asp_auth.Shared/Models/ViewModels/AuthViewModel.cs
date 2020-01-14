@@ -1,4 +1,4 @@
-﻿namespace taohi_backend.Models
+﻿namespace asp_auth.Models
 {
     public class AuthViewModel
     {

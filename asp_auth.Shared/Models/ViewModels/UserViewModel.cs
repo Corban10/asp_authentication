@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-namespace taohi_backend.Models
+namespace asp_auth.Models
 {
     public class UserViewModel
     {

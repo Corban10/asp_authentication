@@ -1,8 +1,8 @@
 ﻿"use strict";
 
 let debugCredentials = [
-    { username: "corbanhirawani@gmail.com", password: "password" },
-    { username: "maraea@heitikicreatives.com", password: "password" },
+    { username: "userone@email.com", password: "password" },
+    { username: "usertwo@email.com", password: "password" },
 ];
 let baseUrl = `${window.location.protocol}//${window.location.host}/`;
 let authUrl = new URL("api/User/Authenticate", baseUrl);

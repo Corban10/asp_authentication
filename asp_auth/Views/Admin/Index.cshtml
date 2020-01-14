@@ -6,7 +6,7 @@
 
 @if (User.Identity.IsAuthenticated)
 {
-    @using taohi_backend.Models;
+    @using asp_auth.Models;
 
     @model IEnumerable<UserViewModel>;
     @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

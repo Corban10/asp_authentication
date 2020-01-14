@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace taohi_backend.Models
+namespace asp_auth.Models
 {
     public class RegisterViewModel
     {

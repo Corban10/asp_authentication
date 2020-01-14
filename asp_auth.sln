@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "taohi_backend", "taohi_backend\taohi_backend.csproj", "{88AEA5FC-048A-463F-89E7-80A3F0B22ED7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "asp_auth", "asp_auth\asp_auth.csproj", "{D69E72B7-21D6-41F5-A8C1-FA1C1917DD60}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "taohi_backend.Shared", "taohi_backend.Shared\taohi_backend.Shared.csproj", "{BBF2E7B1-5161-41D1-9F46-D229E68B0BF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "asp_auth.Shared", "asp_auth.Shared\asp_auth.Shared.csproj", "{EADC6A3F-D878-40DC-98D8-48A976603617}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{88AEA5FC-048A-463F-89E7-80A3F0B22ED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{88AEA5FC-048A-463F-89E7-80A3F0B22ED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{88AEA5FC-048A-463F-89E7-80A3F0B22ED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{88AEA5FC-048A-463F-89E7-80A3F0B22ED7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BBF2E7B1-5161-41D1-9F46-D229E68B0BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BBF2E7B1-5161-41D1-9F46-D229E68B0BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BBF2E7B1-5161-41D1-9F46-D229E68B0BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BBF2E7B1-5161-41D1-9F46-D229E68B0BF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D69E72B7-21D6-41F5-A8C1-FA1C1917DD60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D69E72B7-21D6-41F5-A8C1-FA1C1917DD60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D69E72B7-21D6-41F5-A8C1-FA1C1917DD60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D69E72B7-21D6-41F5-A8C1-FA1C1917DD60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EADC6A3F-D878-40DC-98D8-48A976603617}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EADC6A3F-D878-40DC-98D8-48A976603617}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EADC6A3F-D878-40DC-98D8-48A976603617}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EADC6A3F-D878-40DC-98D8-48A976603617}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

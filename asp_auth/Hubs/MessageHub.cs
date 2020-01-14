@@ -2,10 +2,10 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using taohi_backend.Data;
-using taohi_backend.Models;
+using asp_auth.Data;
+using asp_auth.Models;
 
-namespace taohi_backend.Hubs
+namespace asp_auth.Hubs
 {
     public class MessageHub : Hub
     {

@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using taohi_backend.Interfaces;
+using asp_auth.Interfaces;
 
-namespace taohi_backend.Controllers
+namespace asp_auth.Controllers
 {
-    [Authorize(Policy = "Bearer")]
+    [Authorize(Roles = "User, Admin")]
     [Authorize(Policy = "IsActive")]
-    [ApiController]
-    [Route("api/[controller]")]
     public class MessagesController : Controller
     {
         private readonly IMessageService _service;
@@ -23,6 +21,14 @@ namespace taohi_backend.Controllers
             ViewBag.Messages = messages;
 
             return View();
+        }
+        [Authorize(Policy = "Bearer")]
+        [HttpGet("GetMessages")]
+        public async Task<IActionResult> GetMessages()
+        {
+            var messages = await _service.GetMessages();
+
+            return Ok(messages);
         }
     }
 }

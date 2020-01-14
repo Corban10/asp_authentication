@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
-namespace taohi_backend.PolicyHandlers
+namespace asp_auth.PolicyHandlers
 {
     public class AgeClaimRequirement : IAuthorizationRequirement
     {

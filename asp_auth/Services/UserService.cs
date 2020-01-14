@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using taohi_backend.Interfaces;
-using taohi_backend.Models;
+using asp_auth.Interfaces;
+using asp_auth.Models;
 
-namespace taohi_backend.Services
+namespace asp_auth.Services
 {
     public class UserService : IUserService
     {
@@ -138,32 +138,6 @@ namespace taohi_backend.Services
             throw new NotImplementedException();
         }
         public Task<User> ToggleIsActive(Guid id, ClaimsPrincipal claim)
-        {
-            throw new NotImplementedException();
-        }
-
-        // Relationships
-        public Task<Relationship> GetRelationship(Guid id, ClaimsPrincipal claim)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Relationship> CreateRelationship(Guid rightUserID, Guid leftUserID)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Relationship> BlockUser(Guid id, ClaimsPrincipal claim)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Relationship> UnblockUser(Guid id, ClaimsPrincipal claim)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Relationship> FollowUser(Guid id, ClaimsPrincipal claim)
-        {
-            throw new NotImplementedException();
-        }
-        public Task<Relationship> UnfollowUser(Guid id, ClaimsPrincipal claim)
         {
             throw new NotImplementedException();
         }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using taohi_backend.Models;
+using asp_auth.Models;
 
-namespace taohi_backend.Interfaces
+namespace asp_auth.Interfaces
 {
     public interface IMessageService
     {

@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\taohi_backend.Shared\taohi_backend.Shared.csproj" />
+    <ProjectReference Include="..\asp_auth.Shared\asp_auth.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using taohi_backend.Models;
+using asp_auth.Models;
 
-namespace taohi_backend.Data
+namespace asp_auth.Data
 {
     public static class UserDataSeeder
     {
@@ -27,49 +27,33 @@ namespace taohi_backend.Data
         }
         public static async Task SeedUsers(UserManager<User> userManager)
         {
-            const string corbansEmail = "corbanhirawani@gmail.com";
-            const string maraeasEmail = "maraea@heitikicreatives.com";
-            const string petersEmail = "petertanerapalmer@gmail.com";
-            if (await userManager.FindByEmailAsync(corbansEmail) == null)
+            const string userOneEmail = "userone@email.com";
+            const string userTwoEmail = "usertwo@email.com";
+            if (await userManager.FindByEmailAsync(userOneEmail) == null)
             {
                 var user = new User();
-                user.FirstName = "corban";
-                user.LastName = "hirawani";
+                user.FirstName = "user";
+                user.LastName = "one";
                 user.DateOfBirth = new DateTime(1993, 6, 21);
                 user.IsActive = true;
                 user.UserType = UserType.Admin;
-                user.Email = corbansEmail;
-                user.UserName = corbansEmail;
+                user.Email = userOneEmail;
+                user.UserName = userOneEmail;
 
                 var result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
                     await AddRolesAndClaims(userManager, user);
             }
-            if (await userManager.FindByEmailAsync(maraeasEmail) == null)
+            if (await userManager.FindByEmailAsync(userTwoEmail) == null)
             {
                 var user = new User();
-                user.FirstName = "maraea";
-                user.LastName = "davies";
+                user.FirstName = "user";
+                user.LastName = "two";
                 user.DateOfBirth = new DateTime(1993, 6, 21);
                 user.IsActive = true;
                 user.UserType = UserType.Admin;
-                user.Email = maraeasEmail;
-                user.UserName = maraeasEmail;
-
-                var result = await userManager.CreateAsync(user, "password");
-                if (result.Succeeded)
-                    await AddRolesAndClaims(userManager, user);
-            }
-            if (await userManager.FindByEmailAsync(petersEmail) == null)
-            {
-                var user = new User();
-                user.FirstName = "peter";
-                user.LastName = "palmer";
-                user.DateOfBirth = new DateTime(1993, 6, 21);
-                user.IsActive = true;
-                user.UserType = UserType.Admin;
-                user.Email = petersEmail;
-                user.UserName = petersEmail;
+                user.Email = userTwoEmail;
+                user.UserName = userTwoEmail;
 
                 var result = await userManager.CreateAsync(user, "password");
                 if (result.Succeeded)
@@ -83,12 +67,6 @@ namespace taohi_backend.Data
             {
                 var role = new UserRole();
                 role.Name = "User";
-                await roleManager.CreateAsync(role);
-            }
-            if (!await roleManager.RoleExistsAsync("Moderator"))
-            {
-                var role = new UserRole();
-                role.Name = "Moderator";
                 await roleManager.CreateAsync(role);
             }
             if (!await roleManager.RoleExistsAsync("Admin"))

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using taohi_backend.Data;
-using taohi_backend.Interfaces;
-using taohi_backend.Models;
+using asp_auth.Data;
+using asp_auth.Interfaces;
+using asp_auth.Models;
 
-namespace taohi_backend.Services
+namespace asp_auth.Services
 {
     public class MessageService : IMessageService
     {
@@ -28,7 +28,6 @@ namespace taohi_backend.Services
                     return null;
                 message.Sender = user;
                 message.Sender.PasswordHash = null;
-                message.Sender.Videos = null;
                 return message;
             }).Where(message => message != null);
         }

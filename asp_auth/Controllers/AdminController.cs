@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using taohi_backend.Interfaces;
-using taohi_backend.Models;
+using asp_auth.Interfaces;
+using asp_auth.Models;
 
-namespace taohi_backend.Controllers
+namespace asp_auth.Controllers
 {
     [Authorize(Policy = "Admin")]
     [Authorize(Policy = "IsActive")]

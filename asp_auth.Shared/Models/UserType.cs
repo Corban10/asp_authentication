@@ -1,9 +1,8 @@
-﻿namespace taohi_backend.Models
+﻿namespace asp_auth.Models
 {
     public enum UserType
     {
         User,
-        Moderator,
         Admin
     }
 }
