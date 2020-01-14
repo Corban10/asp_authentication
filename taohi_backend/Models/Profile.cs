@@ -6,6 +6,7 @@ namespace taohi_backend.Models
     {
         public Guid ProfileId { get; set; }
         public string ProfilePictureUrl { get; set; }
+        public string ProfilePicturePreviewUrl { get; set; }
         public string ProfileBio { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }

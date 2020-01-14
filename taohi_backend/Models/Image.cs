@@ -8,6 +8,7 @@ namespace taohi_backend.Models
         public Guid ImageId { get; set; }
         public string ImageUrl { get; set; }
         public string ImageDescription { get; set; }
+        public bool Uploaded { get; set; }
         [Column("IsPrivate", TypeName = "bit")]
         public bool IsPrivate { get; set; }
         public ContentType ContentType { get; set; }

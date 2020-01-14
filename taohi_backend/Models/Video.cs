@@ -9,6 +9,7 @@ namespace taohi_backend.Models
         public string VideoUrl { get; set; }
         public string VideoTitle { get; set; }
         public string VideoDescription { get; set; }
+        public bool Uploaded { get; set; }
         [Column("IsPrivate", TypeName = "bit")]
         public bool IsPrivate { get; set; }
         public ContentType ContentType { get; set; }
