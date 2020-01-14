@@ -17,8 +17,9 @@ namespace asp_auth.Hubs
 
         public async Task SendMessage(Message message)
         {
-            //var senderID = ConnectionUserId(Context);
-            //if (senderID != message.SenderId)
+            // only owning user can post using this senderId
+            //var senderId = ConnectionUserId(Context);
+            //if (senderId != message.SenderId)
             //    return;
 
             var sender = await _context.Users.FindAsync(message.SenderId);
@@ -31,7 +32,7 @@ namespace asp_auth.Hubs
             message = UpdateTimeStamp(message);
             await _context.Messages.AddAsync(message);
             await _context.SaveChangesAsync();
-            await Clients.All.SendAsync("ReceiveMessage", message.MessageId, sender.UserName, message.MessageContent);
+            await Clients.All.SendAsync("ReceiveMessage", message.MessageId, sender.DisplayName, message.MessageContent);
         }
 
         public async Task DeleteMessage(Guid messageId)
@@ -39,7 +40,7 @@ namespace asp_auth.Hubs
             var userID = ConnectionUserId(Context);
             var user = await _context.Users.FindAsync(userID);
             var message = await _context.Messages.FindAsync(messageId);
-            if (message == null || user == null || !user.IsActive) // || message.SenderId != userID
+            if (message == null || user == null || !user.IsActive) // || message.SenderId != userID // only owning user can delete message
                 return;
 
             _context.Messages.Remove(message);

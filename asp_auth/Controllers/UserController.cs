@@ -65,6 +65,5 @@ namespace asp_auth.Controllers
 
             return Ok(userViewModel);
         }
-
     }
 }

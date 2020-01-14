@@ -20,20 +20,23 @@ namespace asp_auth.Controllers
         public RoleManager<UserRole> _roleManager;
         public UserManager<User> _userManager;
         public SignInManager<User> _signInManager;
-        public IUserService _userService;
-        public IAuthorizationService _authService;
+        private readonly IUserService _userService;
+        private readonly IAuthorizationService _authService;
+        private readonly IMessageService _messageService;
         public AdminController(
             RoleManager<UserRole> roleManager,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IUserService userService,
-            IAuthorizationService authService)
+            IAuthorizationService authService,
+            IMessageService messageService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _userService = userService;
             _authService = authService;
+            _messageService = messageService;
         }
 
         public async Task<IActionResult> Index([FromQuery] string role)
@@ -228,6 +231,13 @@ namespace asp_auth.Controllers
             await _signInManager.SignOutAsync();
 
             return RedirectToAction("Login");
+        }
+        public async Task<IActionResult> Messages()
+        {
+            var messages = await _messageService.GetMessages();
+
+            ViewBag.Messages = messages;
+            return View();
         }
     }
 }

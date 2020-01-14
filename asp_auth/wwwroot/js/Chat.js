@@ -52,12 +52,12 @@ var connection = new signalR.HubConnectionBuilder()
 //Disable send button until connection is established
 document.getElementById("sendButton").disabled = true;
 
-connection.on("ReceiveMessage", function (messageID, userName, message) {
+connection.on("ReceiveMessage", function (messageID, displayName, message) {
     const msg = message
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
-    const encodedMsg = userName + " says " + msg;
+    const encodedMsg = displayName + " says " + msg;
 
     const li = document.createElement("li");
     const lispan = document.createElement("span");

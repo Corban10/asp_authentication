@@ -32,6 +32,7 @@ namespace asp_auth.Data
             if (await userManager.FindByEmailAsync(userOneEmail) == null)
             {
                 var user = new User();
+                user.DisplayName = "User one";
                 user.FirstName = "user";
                 user.LastName = "one";
                 user.DateOfBirth = new DateTime(1993, 6, 21);
@@ -47,6 +48,7 @@ namespace asp_auth.Data
             if (await userManager.FindByEmailAsync(userTwoEmail) == null)
             {
                 var user = new User();
+                user.DisplayName = "User two";
                 user.FirstName = "user";
                 user.LastName = "two";
                 user.DateOfBirth = new DateTime(1993, 6, 21);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace asp_auth.Models
 {
@@ -8,6 +9,8 @@ namespace asp_auth.Models
         public string MessageContent { get; set; }
         public Guid SenderId { get; set; }
         public User Sender { get; set; }
+        [NotMapped]
+        public UserViewModel SenderView { get; set; }
         public Guid ReceiverId { get; set; }
         public User Receiver { get; set; }
         public DateTime? CreatedDateTime { get; set; }
